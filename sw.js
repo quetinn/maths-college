@@ -10,7 +10,7 @@
 //  Bumper VERSION purge les anciens caches.
 // =====================================================================
 
-const VERSION = 'v13';
+const VERSION = 'v16';
 const CACHE = 'maths-college-' + VERSION;
 
 // Coquille de l'application (chemins relatifs à l'emplacement du SW = racine).
@@ -18,8 +18,44 @@ const CACHE = 'maths-college-' + VERSION;
 const CORE = [
   './', './index.html', './manifest.json',
   './css/style.css',
-  './js/app.js', './js/programme.js', './js/stats.js', './js/cloud.js', './js/fusion.js', './js/config.js', './js/engine.js', './js/render.js', './js/aide_memoire.js', './js/brevet.js',
+  './js/app.js', './js/programme.js', './js/stats.js', './js/cloud.js', './js/fusion.js', './js/config.js', './js/engine.js', './js/render.js', './js/aide_memoire.js', './js/brevet.js', './js/icones.js',
   './js/chapters/commun.js',
+  './js/unites.js',
+  './js/chapters/physique/outils.js',
+  './js/chapters/physique/figures.js',
+  './js/chapters/physique/figures_cycle.js',
+  './js/chapters/physique/figures_chimie.js',
+  './js/brevet_sciences.js',
+  './js/chapters/physique/5e/pv01_etats_matiere.js',
+  './js/chapters/physique/5e/pv02_changements_etat.js',
+  './js/chapters/physique/5e/pv03_masse_volume.js',
+  './js/chapters/physique/5e/pv04_melanges.js',
+  './js/chapters/physique/5e/pv05_mouvement.js',
+  './js/chapters/physique/5e/pv06_energie.js',
+  './js/chapters/physique/5e/pv07_circuit.js',
+  './js/chapters/physique/5e/pv08_serie_derivation.js',
+  './js/chapters/physique/5e/pv09_lumiere.js',
+  './js/chapters/physique/4e/pr01_air_molecules.js',
+  './js/chapters/physique/4e/pr02_transformations.js',
+  './js/chapters/physique/4e/pr03_combustions.js',
+  './js/chapters/physique/4e/pr04_equations.js',
+  './js/chapters/physique/4e/pr05_mouvement_vitesse.js',
+  './js/chapters/physique/4e/pr06_interactions.js',
+  './js/chapters/physique/4e/pr07_intensite_tension.js',
+  './js/chapters/physique/4e/pr08_energie_conversions.js',
+  './js/chapters/physique/4e/pr09_son.js',
+  './js/chapters/physique/4e/pr10_lumiere_vitesse.js',
+  './js/chapters/physique/3e/p01_univers_atomes.js',
+  './js/chapters/physique/3e/p02_ions.js',
+  './js/chapters/physique/3e/p03_acides_bases.js',
+  './js/chapters/physique/3e/p04_masse_volumique.js',
+  './js/chapters/physique/3e/p05_vitesse_mouvement.js',
+  './js/chapters/physique/3e/p06_forces.js',
+  './js/chapters/physique/3e/p07_poids.js',
+  './js/chapters/physique/3e/p08_energie.js',
+  './js/chapters/physique/3e/p09_loi_ohm.js',
+  './js/chapters/physique/3e/p10_puissance_energie.js',
+  './js/chapters/physique/3e/p11_signaux.js',
   './js/chapters/3e/c01_calcul_litteral.js',
   './js/chapters/3e/c02_identites_remarquables.js',
   './js/chapters/3e/c03_equations_1er_degre.js',
@@ -106,7 +142,8 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   const sameOrigin = url.origin === self.location.origin;
-  const isCdn = url.hostname === 'cdn.jsdelivr.net';
+  // Polices Google : réponses opaques (sans CORS), mises en cache telles quelles.
+  const isCdn = url.hostname === 'cdn.jsdelivr.net' || url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
   if (!sameOrigin && !isCdn) return; // API de sauvegarde, etc. : laissé au réseau
 
   if (isCdn) {
@@ -114,7 +151,7 @@ self.addEventListener('fetch', (e) => {
       const cached = await caches.match(req);
       if (cached) return cached;
       const res = await fetch(req);
-      if (res && res.ok) { const c = await caches.open(CACHE); c.put(req, res.clone()); }
+      if (res && (res.ok || res.type === 'opaque')) { const c = await caches.open(CACHE); c.put(req, res.clone()); }
       return res;
     })());
     return;

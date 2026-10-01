@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planche des pictogrammes</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  /* Planche de contrôle : tous les pictogrammes de chapitre, par niveau */
+  body { padding: 16px; }
+  h2 { font: 900 1.6rem/1 var(--display); text-transform: uppercase; margin: 1.4rem 0 0.6rem; }
+  .planche { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .case { background: var(--surface-2); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .case .picto { width: 64px; height: 64px; }
+  .case small { font-size: 0.75rem; color: var(--muted); }
+  .case b { font-size: 0.85rem; line-height: 1.2; }
+</style>
+</head>
+<body>
+<h1 class="affiche-titre" style="font-size:2.4rem">Pictogrammes des chapitres</h1>
+<div id="hote"></div>
+<script type="module">
+  import { NIVEAUX, CHAPTERS } from '../js/programme.js';
+  import { pictoChapitre } from '../js/icones.js';
+  document.getElementById('hote').innerHTML = NIVEAUX.map((n) => `
+    <h2>${n.label}</h2>
+    <div class="planche">${CHAPTERS.filter((c) => c.niveau === n.id).map((c) => `
+      <div class="case">${pictoChapitre(c)}<small>${c.id}</small><b>${c.titre}</b></div>`).join('')}
+    </div>`).join('');
+</script>
+</body>
+</html>

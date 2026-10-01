@@ -67,7 +67,7 @@ export function progression(data, liste) {
   const done = dispo.filter((c) => chapitre(data, c.id).quizPassed).length;
   return { done, total: dispo.length, pct: dispo.length ? Math.round((done / dispo.length) * 100) : 0 };
 }
-export const progressionNiveau = (data, niveau) => progression(data, chaptersOf(niveau));
+export const progressionNiveau = (data, niveau, matiere = 'maths') => progression(data, chaptersOf(niveau, null, matiere));
 export const progressionTheme = (data, theme, niveau) => progression(data, chaptersOf(niveau, theme));
 
 /** Exercices réussis sur les `jours` derniers jours (journal `data.activite`). */

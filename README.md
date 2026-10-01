@@ -1,4 +1,4 @@
-# Maths Collège — Plateforme interactive (5ᵉ, 4ᵉ, 3ᵉ)
+# Cours Collège — Plateforme interactive (5ᵉ, 4ᵉ, 3ᵉ)
 
 SPA pédagogique de mathématiques pour le collège en **vanilla JS multi-fichiers**,
 sans build step, conçue pour **GitHub Pages**. Cours, méthodes pas-à-pas, exercices
@@ -8,7 +8,7 @@ auto-corrigés à génération aléatoire, quiz bilan, XP et badges.
 
 ```
 index.html              Shell SPA + chargement des CDN (KaTeX, JSXGraph, Chart.js)
-css/style.css           Design mobile-first, palette douce, accents par thème
+css/style.css           Design « Planche » (aplats, titres d'affiche, mouvement), mobile-first
 js/programme.js         Registre des NIVEAUX, THÈMES et CHAPITRES (ordre de progression)
 js/app.js               Routeur (#/…), store localStorage, accueil par niveau, pages
 js/stats.js             Statistiques de progression (maîtrise, erreurs, résumé tuteur)
@@ -19,13 +19,30 @@ backend/Code.gs         Serveur de sauvegarde (Google Apps Script) + INSTALLATIO
 tools/                  test_chapitres.mjs et test_backend.mjs (tests), mock_sheets.mjs
 js/engine.js            Moteur d'exercices : génération, validation, indices, quiz
 js/render.js            KaTeX, traceur de fonctions SVG, JSXGraph, Chart.js
+js/icones.js            Pictogrammes SVG (un par chapitre de 3ᵉ, un par thème) et icônes d'interface
 js/brevet.js            Problèmes type brevet (situation + sous-questions)
+js/brevet_sciences.js   Problèmes type brevet de sciences, partie physique-chimie (unités, questions à choix)
 js/chapters/commun.js   Outils des chapitres : figures SVG, tableaux, blocs Scratch
 js/chapters/5e/vNN_*.js Chapitres de 5ᵉ (17, nouveau programme 2026)
 js/chapters/4e/rNN_*.js Chapitres de 4ᵉ (18)
 js/chapters/3e/cNN_*.js Chapitres de 3ᵉ (17)
+js/chapters/physique/   Physique-chimie : 5e/pvNN_*.js (9), 4e/prNN_*.js (10), 3e/pNN_*.js (11) ; figures.js,
+                        figures_cycle.js (5ᵉ-4ᵉ) et figures_chimie.js (molécules, réactions) : figures animées,
+                        outils.js (valeurs + unités, écriture scientifique)
+js/unites.js            Lecture et comparaison des grandeurs physiques (« 150 mA », « 43,2 km/h »…)
+maquettes/              Maquettes de design (direction retenue : c_planche.html) et planche des pictogrammes
 serve.py                Serveur statique sans cache pour le dev local (optionnel)
 ```
+
+## Matières
+
+- **Maths** et **physique-chimie**, de la 5ᵉ à la 3ᵉ, sélectionnées par les
+  pastilles de l'en-tête. Chaque matière a sa couleur (vert / bleu outremer) ; les routes sont
+  `#/niveau/3e` (maths) et `#/physique/niveau/3e`. `MATIERES` dans `programme.js` liste les niveaux rédigés.
+- Physique-chimie 3ᵉ : programme de cycle 4 (BO n°31 du 30 juillet 2020), découpage calé sur le
+  manuel LeLivreScolaire. Les chapitres ont l'identifiant `pNN` et des figures animées manipulables
+  (atome, tests d'ions, pH, flotte/coule, chronophotographie, forces, poids, énergie, freinage,
+  circuit avec électrons, compteur, onde sonore audible, orage).
 
 ## Niveaux, thèmes et programmes
 
@@ -35,7 +52,7 @@ serve.py                Serveur statique sans cache pour le dev local (optionnel
   fonctions · Géométrie et grandeurs · Données et probabilités · Algorithmique.
 - L'élève indique **sa classe** au premier lancement (modifiable dans ⚙️ Réglages) ; son
   programme s'affiche en premier, mais les onglets 5ᵉ/4ᵉ/3ᵉ donnent accès à tout le collège.
-- Les **52 chapitres** sont rédigés (cours, méthode, 8 à 11 exercices générés aléatoirement,
+- Les **52 chapitres de maths** et les **30 de physique-chimie** sont rédigés (cours, méthode, 8 à 11 exercices générés aléatoirement,
   quiz bilan). Un chapitre avec `module: null` dans `programme.js` apparaîtrait « En préparation ».
 - Chaque correction reprend **les valeurs du tirage** de l'élève (pas de corrigé générique) ;
   `node tools/test_chapitres.mjs` le vérifie automatiquement.
@@ -69,7 +86,7 @@ express : `express: { cours: [0, 2], exercices: ['e01', 'e03', 'e05'] }`.
 - **Types d'exercices** : saisie, QCM (choix mélangés), vrai/faux, ordonner les étapes,
   « complète le calcul », avec clavier mathématique, lecture à voix haute et correction
   pas-à-pas. Difficulté adaptative.
-- **Examen blanc** (`#/examen`, par niveau et par thème), **Brevet blanc** (`#/brevet`),
+- **Examen blanc** (`#/examen`, par niveau et par thème), **Brevet blanc** (`#/brevet` : maths, ou brevet de sciences quand la matière affichée est la physique-chimie),
   **révision du jour** (`#/revise`), **aide-mémoire** (`#/formulaire`),
   **fiches imprimables** pour le tuteur (`#/fiche`), **diagnostic** (`#/diagnostic`).
 - **PWA** installable + hors-ligne (`sw.js` : réseau d'abord pour le site, cache en secours).
@@ -80,7 +97,7 @@ Les modules ES ne fonctionnent pas en `file://` : il faut un serveur HTTP.
 
 ```bash
 python serve.py              # serveur sans cache (recommandé en dev) → http://localhost:8124
-node tools/test_chapitres.mjs # vérifie les 52 chapitres (générateurs, corrections, figures)
+node tools/test_chapitres.mjs # vérifie les 82 chapitres et les 18 problèmes de brevet
 node tools/mock_sheets.mjs   # (option) faux Google Sheets → http://localhost:8125/exec
 ```
 
@@ -130,6 +147,11 @@ export default {
 
 **Validation (`validation`)** :
 
+- `'grandeur'` (physique) : valeur **et unité** (`reponse`, `unite: 'A'`). Toute unité de la même
+  famille est acceptée après conversion (150 mA = 0,15 A) ; sans unité ou avec une unité d'une autre
+  famille, la réponse est refusée avec un message ciblé. Options : `tolerance` (dans l'unité attendue),
+  `uniteImposee` (exercices de conversion), `pieges: [{ valeur, message }]` (erreurs typiques :
+  formule inversée, conversion oubliée…). `pieges` fonctionne aussi avec `'nombre'`.
 - `'nombre'` : la saisie doit être un **résultat** (décimal, fraction `a/b`, `a×10^n`,
   unité finale tolérée). Un calcul recopié (`(-3)+(-5)`, `2/7+3/7`) est refusé, sauf
   option `calcul: true`. `tolerance` est un **écart absolu** (réponse au dixième → `0.05`,

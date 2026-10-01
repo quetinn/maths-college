@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Plateforme interactive de mathématiques pour le collège (5ᵉ, 4ᵉ, 3ᵉ) — cours, méthodes et exercices auto-corrigés." />
-  <meta name="theme-color" content="#5b8a72" />
-  <title>Maths Collège — cours et exercices de la 5ᵉ à la 3ᵉ</title>
+  <meta name="description" content="Cours Collège : cours, méthodes et exercices auto-corrigés pour le collège (5ᵉ, 4ᵉ, 3ᵉ)." />
+  <meta name="theme-color" content="#0f7b5a" />
+  <title>Cours Collège — cours et exercices de la 5ᵉ à la 3ᵉ</title>
 
   <!-- PWA : installation + hors-ligne -->
   <link rel="manifest" href="manifest.json" />
@@ -13,8 +13,13 @@
   <!-- iOS : « Sur l'écran d'accueil » -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Maths Collège" />
+  <meta name="apple-mobile-web-app-title" content="Cours Collège" />
   <link rel="apple-touch-icon" href="icons/icon-180.png" />
+
+  <!-- Polices : Big Shoulders Display (titres d'affiche) + Figtree (texte) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Figtree:wght@400;500;600;700;800&display=swap" />
 
   <!-- KaTeX (formules) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous" />
@@ -27,18 +32,20 @@
 <body>
   <!-- Barre supérieure : marque + XP / niveau -->
   <header class="topbar">
-    <a class="brand" href="#/">
-      <span class="brand-ico">📐</span>
-      <span class="brand-txt">Maths&nbsp;Collège</span>
+    <a class="brand" href="#/" aria-label="Cours Collège, accueil">
+      <span class="brand-txt">Cours <i>Collège</i></span>
     </a>
     <div class="xp-mini" id="xpMini" aria-label="Progression"></div>
     <nav class="top-actions">
-      <a class="top-btn" href="#/formulaire" title="Aide-mémoire" aria-label="Aide-mémoire">📖</a>
-      <a class="top-btn" id="btnTableau" href="#/tableau" title="Tableau de bord" aria-label="Tableau de bord">📊</a>
-      <a class="top-btn compte-btn" id="btnCompte" href="#/compte" title="Mon compte" aria-label="Mon compte" hidden>👤</a>
-      <button class="top-btn" id="btnSettings" title="Réglages" aria-label="Réglages">⚙️</button>
+      <a class="top-btn" href="#/formulaire" title="Aide-mémoire" aria-label="Aide-mémoire" data-ico="livre"></a>
+      <a class="top-btn" id="btnTableau" href="#/tableau" title="Tableau de bord" aria-label="Tableau de bord" data-ico="tableau"></a>
+      <a class="top-btn compte-btn" id="btnCompte" href="#/compte" title="Mon compte" aria-label="Mon compte" data-ico="compte" hidden></a>
+      <button class="top-btn" id="btnSettings" title="Réglages" aria-label="Réglages" data-ico="reglages"></button>
     </nav>
   </header>
+
+  <!-- En-tête coloré pleine largeur (« affiche ») : rempli par l'accueil et les chapitres -->
+  <div id="affiche" class="affiche" hidden></div>
 
   <!-- Conteneur de l'application (rendu par le routeur) -->
   <main id="app" class="app-main">
@@ -46,7 +53,7 @@
   </main>
 
   <footer class="app-footer">
-    <p>Programme cycle 4 · Outil pédagogique · Avance à ton rythme 🌱</p>
+    <p>Cours Collège · programme du cycle 4 · avance à ton rythme</p>
   </footer>
 
   <noscript>

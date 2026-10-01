@@ -302,7 +302,7 @@ let _jxgCount = 0;
  */
 export function mountJSXGraph(container, builder, attrs = {}) {
   if (!window.JXG) {
-    container.innerHTML = '<p class="notice">⚠️ JSXGraph n\'est pas chargé.</p>';
+    container.innerHTML = '<p class="notice">JSXGraph n\'est pas chargé.</p>';
     return null;
   }
   const id = `jxg-${++_jxgCount}`;
@@ -338,7 +338,7 @@ export function mountJSXGraph(container, builder, attrs = {}) {
  */
 export function mountChart(container, config) {
   if (!window.Chart) {
-    container.innerHTML = '<p class="notice">⚠️ Chart.js n\'est pas chargé.</p>';
+    container.innerHTML = '<p class="notice">Chart.js n\'est pas chargé.</p>';
     return null;
   }
   const canvas = document.createElement('canvas');

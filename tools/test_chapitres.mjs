@@ -47,6 +47,9 @@ const imp = (rel) => import(pathToFileURL(path.join(racine, rel)).href);
 const { CHAPTERS } = await imp('js/programme.js');
 const { checkAnswer, prepareChoices, decouperTrous } = await imp('js/engine.js');
 
+// Saisie « type » d'une réponse attendue : une grandeur s'écrit avec son unité.
+const saisieDe = (st) => (st.validation === 'grandeur' ? `${String(st.reponse).replace('.', ',')} ${st.unite}` : String(st.reponse));
+
 // Modes où la réponse stockée (un nombre) n'est pas la saisie attendue (« 2^3×3 », « 5/9 »…).
 const auto = (st) => !['facteurs_premiers', 'fraction_irreductible', 'notation_scientifique'].includes(st.validation);
 
@@ -91,13 +94,18 @@ function verifierEtat(ou, type, st, exo) {
     if (!Array.isArray(st.champs) || trous.join() !== st.champs.map((c, i) => i).join()) problemes.push(`${ou} : cases [${trous}] pour ${st.champs?.length} champs`);
     (st.champs || []).forEach((c, i) => {
       if (!auto(c)) return;
-      if (!checkAnswer(String(c.reponse), c)) problemes.push(`${ou} : champ ${i} refuse sa propre réponse (${c.reponse})`);
+      if (!checkAnswer(saisieDe(c), c)) problemes.push(`${ou} : champ ${i} refuse sa propre réponse (${saisieDe(c)})`);
     });
     return;
   }
   // saisie
   if (st.reponse === undefined) { problemes.push(`${ou} : pas de réponse`); return; }
-  const rep = Array.isArray(st.reponse) ? st.reponse.join(' ; ') : String(st.reponse);
+  const rep = Array.isArray(st.reponse) ? st.reponse.join(' ; ') : saisieDe(st);
+  if (st.validation === 'grandeur') {
+    if (!st.unite) problemes.push(`${ou} : grandeur sans unité`);
+    else if (!st.uniteFacultative && checkAnswer(String(st.reponse), st)) problemes.push(`${ou} : la valeur sans unité est acceptée`);
+    (st.pieges || []).forEach((p) => { if (Math.abs(p.valeur - st.reponse) < 1e-9) problemes.push(`${ou} : un piège vaut la bonne réponse (${p.valeur})`); });
+  }
   if (auto(st) && !checkAnswer(rep, st)) problemes.push(`${ou} : refuse sa propre réponse (${rep}, ${st.validation || 'expression'})`);
   // Calcul recopié depuis l'énoncé : ne doit pas passer (sauf s'il EST la réponse).
   if (st.validation === 'nombre' && !st.calcul) {
@@ -187,6 +195,42 @@ for (const meta of CHAPTERS.filter((c) => c.module && (!filtre.length || filtre.
       if (problemes.length > avant) break;
     }
   });
+}
+
+// ------------------------------------------------ Problèmes de brevet (maths et sciences)
+let nbProblemes = 0;
+if (!filtre.length) {
+  for (const fichier of ['js/brevet.js', 'js/brevet_sciences.js']) {
+    const { PROBLEMES, genererProbleme } = await imp(fichier);
+    for (const pb of PROBLEMES) {
+      nbProblemes++;
+      (pb.chapitres || []).forEach((c) => { if (!CHAPTERS.some((x) => x.id === c)) problemes.push(`${pb.id} : chapitre lié inconnu (${c})`); });
+      for (let k = 0; k < TIRAGES; k++) {
+        let inst;
+        try { inst = genererProbleme(pb); nbTirages++; } catch (e) { problemes.push(`${pb.id} : générateur en échec (${e.message})`); break; }
+        const avant = problemes.length;
+        if (suspect(inst.contexte)) problemes.push(`${pb.id} : contexte suspect`);
+        if (typeof inst.figure === 'function' && k < 5) executerVisuel(pb.id, inst.figure);
+        inst.questions.forEach((q, i) => {
+          const ou = `${pb.id}/q${i + 1}`;
+          if (suspect([q.enonce, q.corrige, q.indice, texte(q.choix)].map(texte).join(' '))) problemes.push(`${ou} : texte suspect`);
+          if (!q.corrige) problemes.push(`${ou} : pas de corrigé`);
+          if (q.choix) {
+            if (new Set(q.choix).size !== q.choix.length) problemes.push(`${ou} : choix en double`);
+            if (!(q.correct >= 0 && q.correct < q.choix.length)) problemes.push(`${ou} : index correct hors borne`);
+            return;
+          }
+          if (!checkAnswer(Array.isArray(q.reponse) ? q.reponse.join(' ; ') : saisieDe(q), q)) problemes.push(`${ou} : refuse sa propre réponse (${saisieDe(q)})`);
+          if (q.validation === 'grandeur') {
+            if (!q.uniteFacultative && checkAnswer(String(q.reponse), q)) problemes.push(`${ou} : la valeur sans unité est acceptée`);
+            (q.pieges || []).forEach((p) => { if (Math.abs(p.valeur - q.reponse) <= (q.tolerance ?? 1e-9)) problemes.push(`${ou} : un piège vaut la bonne réponse (${p.valeur})`); });
+          }
+        });
+        if (problemes.length > avant) break;
+      }
+    }
+  }
+  console.log(`${nbProblemes} problèmes de brevet vérifiés`);
 }
 
 // Les avertissements identiques (même exercice) ne sont listés qu'une fois.

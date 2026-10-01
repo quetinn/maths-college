@@ -9,6 +9,8 @@
 //  - Montage d'un exercice et d'un quiz bilan dans le DOM
 // =====================================================================
 
+import { icone } from './icones.js';
+import { comparerGrandeur } from './unites.js';
 import { renderMath, katexInline, renderChoiceHTML } from './render.js';
 
 // ---------------------------------------------------------------------
@@ -263,6 +265,8 @@ export function checkAnswer(userInput, data) {
     return exprEqual(raw, data.reponse) || (data.accepte || []).some((a) => exprEqual(raw, a));
   }
 
+  if (mode === 'grandeur') return comparerGrandeur(raw, data).ok;
+
   if (mode === 'nombre') {
     // tolère « x = 3 », « S = 5 », « 12 cm² »… en retirant affectation et unité
     const cleaned = stripUnits(normalize(raw.replace(/^[a-zA-Z]\s*=\s*/, '')));
@@ -373,16 +377,28 @@ export function decouperTrous(s) {
   return parts;
 }
 
+// Coche et croix dessinées au trait (animées par CSS : .fb-icon path)
+const FB_OK = '<span class="fb-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg></span>';
+const FB_KO = '<span class="fb-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg></span>';
+
+/** Relance une animation CSS de classe `cls` sur `el` (même si elle vient de jouer). */
+function rejouer(el, cls) {
+  if (!el) return;
+  el.classList.remove(cls);
+  void el.offsetWidth; // force le recalcul : l'animation repart de zéro
+  el.classList.add(cls);
+}
+
 // ---------------------------------------------------------------------
 //  4. Messages d'encouragement (ton positif, jamais punitif)
 // ---------------------------------------------------------------------
 
 const ENCOURAGE_OK = [
-  'Bravo ! 🎉', 'Parfait ! ✨', 'Excellent ! 👏', 'Tout juste ! 🌟', 'Super travail ! 💪',
+  'Bravo !', 'Parfait !', 'Excellent !', 'Tout juste !', 'Super travail !',
 ];
 const ENCOURAGE_RETRY = [
   'Pas tout à fait — réessaie, tu y es presque !',
-  'Ce n\'est pas ça, mais ne lâche rien 💪',
+  'Ce n\'est pas ça, mais ne lâche rien.',
   'Erreur fréquente — relis l\'énoncé et retente.',
   'Presque ! Un indice peut t\'aider.',
 ];
@@ -414,8 +430,26 @@ function insertAtCursor(inp, text) {
 }
 
 const KEYPAD = ['x', '²', '³', '√', '(', ')', '/', '×', '−', ';', '⌫'];
-const keypadHtml = () => `<div class="keypad" data-keypad>` +
-  KEYPAD.map((k) => `<button type="button" class="key" data-key="${k}">${k}</button>`).join('') + `</div>`;
+// Grandeurs physiques : symboles d'unités difficiles à taper au clavier du téléphone
+const KEYPAD_UNITES = ['×10^', 'Ω', 'µ', '/', '³', '°C', '⌫'];
+const keypadHtml = (touches = KEYPAD) => `<div class="keypad" data-keypad>` +
+  touches.map((k) => `<button type="button" class="key" data-key="${k}">${k}</button>`).join('') + `</div>`;
+
+/**
+ * Message ciblé pour une réponse fausse (unité oubliée, formule inversée…),
+ * ou null pour un encouragement générique.
+ */
+export function diagnostic(userInput, data) {
+  const raw = String(userInput ?? '').trim();
+  if (!raw) return null;
+  if (data.validation === 'grandeur') return comparerGrandeur(raw, data).message || null;
+  if (data.validation === 'nombre' && Array.isArray(data.pieges)) {
+    const u = parseNumber(stripUnits(normalize(raw.replace(/^[a-zA-Z]\s*=\s*/, ''))));
+    const p = data.pieges.find((x) => Number.isFinite(u) && Math.abs(u - x.valeur) <= (data.tolerance ?? 1e-6 * (1 + Math.abs(x.valeur))));
+    return p ? p.message : null;
+  }
+  return null;
+}
 
 // Lecture à voix haute (synthèse vocale du navigateur).
 // On NE lit PAS le textContent du DOM KaTeX (il duplique le MathML et se lit
@@ -526,8 +560,8 @@ export function mountExercise(container, exercice, hooks = {}) {
     }
     // saisie (défaut)
     return `<div class="answer-row">
-        <input type="text" class="answer-input" id="${uid}-in" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ta réponse…" aria-label="Réponse">
-        <button class="btn btn-primary" data-act="check">Vérifier</button></div>` + keypadHtml();
+        <input type="text" class="answer-input" id="${uid}-in" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${state.validation === 'grandeur' ? 'Valeur et unité…' : 'Ta réponse…'}" aria-label="Réponse">
+        <button class="btn btn-primary" data-act="check">Vérifier</button></div>` + keypadHtml(state.validation === 'grandeur' ? KEYPAD_UNITES : KEYPAD);
   }
 
   function render() {
@@ -536,8 +570,8 @@ export function mountExercise(container, exercice, hooks = {}) {
     order = null;
 
     const consigne = state.consigne || exercice.consigne || '';
-    const enonceHtml = type === 'complete' ? '' : `<div class="ex-enonce">${state.enonce}</div>`;
-    const speakBtn = window.speechSynthesis ? '<button class="btn btn-ghost" data-act="speak" title="Lire à voix haute">🔊</button>' : '';
+    const enonceHtml = type === 'complete' || state.enonce == null || state.enonce === '' ? '' : `<div class="ex-enonce">${state.enonce}</div>`;
+    const speakBtn = window.speechSynthesis ? `<button class="btn btn-ghost" data-act="speak" title="Lire à voix haute" aria-label="Lire à voix haute">${icone('son', 18)}</button>` : '';
 
     wrap.innerHTML = `
       <div class="ex-head">
@@ -550,10 +584,10 @@ export function mountExercise(container, exercice, hooks = {}) {
       ${inputZone()}
       <div class="ex-feedback" data-feedback aria-live="polite"></div>
       <div class="ex-tools">
-        <button class="btn btn-ghost" data-act="hint">💡 Indice</button>
-        <button class="btn btn-ghost" data-act="solution">📖 Correction</button>
+        <button class="btn btn-ghost" data-act="hint">${icone('ampoule', 18)} Indice</button>
+        <button class="btn btn-ghost" data-act="solution">${icone('livre', 18)} Correction</button>
         ${speakBtn}
-        <button class="btn btn-ghost" data-act="new">🔄 Nouvel exercice</button>
+        <button class="btn btn-ghost" data-act="new">${icone('revision', 18)} Nouvel exercice</button>
       </div>
       <div class="ex-hints" data-hints></div>
       <div class="ex-solution" data-solution hidden></div>`;
@@ -592,7 +626,7 @@ export function mountExercise(container, exercice, hooks = {}) {
   function bind() {
     const fb = wrap.querySelector('[data-feedback]');
 
-    const onResult = (ok) => {
+    const onResult = (ok, message = null) => {
       attempts++;
       if (typeof hooks.onAttempt === 'function') hooks.onAttempt(exercice.id, ok);
       wrap.querySelector('[data-attempts]').textContent = attempts > 0 ? `Tentatives : ${attempts}` : '';
@@ -601,14 +635,19 @@ export function mountExercise(container, exercice, hooks = {}) {
         fb.className = 'ex-feedback is-ok';
         const malus = Math.min(niveauXP - 2, (hintsShown * 2) + Math.max(0, attempts - 1) * 2);
         const xp = Math.max(2, niveauXP - malus);
-        fb.innerHTML = `<span class="fb-icon">✓</span> ${pick(ENCOURAGE_OK)} <em>+${xp} XP</em>`;
+        fb.innerHTML = `${FB_OK} ${pick(ENCOURAGE_OK)} <em class="fb-xp">+${xp} XP</em>`;
         wrap.classList.add('solved');
+        // Tampon « Juste ! » posé sur la copie
+        if (!wrap.querySelector('.ex-tampon')) wrap.insertAdjacentHTML('beforeend', '<span class="ex-tampon" aria-hidden="true">Juste !</span>');
         if (typeof hooks.onCorrect === 'function') hooks.onCorrect(xp, exercice.id);
       } else if (ok && solved) {
-        fb.className = 'ex-feedback is-ok'; fb.innerHTML = `<span class="fb-icon">✓</span> Toujours juste !`;
+        fb.className = 'ex-feedback is-ok'; fb.innerHTML = `${FB_OK} Toujours juste !`;
       } else {
-        fb.className = 'ex-feedback is-err'; fb.innerHTML = `<span class="fb-icon">✗</span> ${pick(ENCOURAGE_RETRY)}`;
+        fb.className = 'ex-feedback is-err'; fb.innerHTML = `${FB_KO} ${message || pick(ENCOURAGE_RETRY)}`;
+        // La zone de réponse fait « non » de la tête
+        rejouer(wrap.querySelector('.answer-row, .complete-zone, .qcm-group, .vf-group, .ordonner'), 'secoue');
       }
+      rejouer(fb, 'apparait');
     };
 
     // Suivi du dernier champ focalisé + clavier mathématique
@@ -640,7 +679,7 @@ export function mountExercise(container, exercice, hooks = {}) {
     } else {
       const input = wrap.querySelector('.answer-input');
       if (input && checkBtn) {
-        const check = () => onResult(checkAnswer(input.value, state));
+        const check = () => { const ok = checkAnswer(input.value, state); onResult(ok, ok ? null : diagnostic(input.value, state)); };
         checkBtn.addEventListener('click', check);
         input.addEventListener('keydown', (e) => { if (e.key === 'Enter') check(); });
       }
@@ -659,7 +698,7 @@ export function mountExercise(container, exercice, hooks = {}) {
     wrap.querySelector('[data-act="hint"]').addEventListener('click', () => {
       const hints = exercice.indices || [];
       const box = wrap.querySelector('[data-hints]');
-      if (hintsShown >= hints.length) { box.innerHTML = `<p class="hint">Plus d'indice — tente la correction 📖</p>`; return; }
+      if (hintsShown >= hints.length) { box.innerHTML = `<p class="hint">Plus d'indice : regarde la correction.</p>`; return; }
       const p = document.createElement('p'); p.className = 'hint';
       p.innerHTML = `<strong>Indice ${hintsShown + 1} :</strong> ${hints[hintsShown]}`;
       box.appendChild(p); renderMath(p); hintsShown++;
@@ -680,7 +719,7 @@ export function mountExercise(container, exercice, hooks = {}) {
     sol.hidden = false;
     const etapes = typeof exercice.correction_etapes === 'function' ? exercice.correction_etapes(state) : exercice.correction_etapes;
     if (Array.isArray(etapes) && etapes.length) {
-      if (correctionStep === 0) sol.innerHTML = `<h4>Correction pas-à-pas</h4><ol class="corr-steps"></ol><button class="btn btn-ghost" data-act="next-step">Étape suivante →</button>`;
+      if (correctionStep === 0) sol.innerHTML = `<h4>Correction pas à pas</h4><ol class="corr-steps"></ol><button class="btn btn-ghost" data-act="next-step">Étape suivante ${icone('fleche', 18)}</button>`;
       const ol = sol.querySelector('.corr-steps');
       if (correctionStep < etapes.length) {
         const li = document.createElement('li'); li.innerHTML = etapes[correctionStep]; ol.appendChild(li); renderMath(li); correctionStep++;
@@ -704,6 +743,7 @@ export function mountExercise(container, exercice, hooks = {}) {
     const nombre = (x) => (typeof x === 'number' ? String(Math.round(x * 1e6) / 1e6).replace('.', ',') : x);
     if (type === 'complete') rep = state.champs.map((c) => (c.reponseTex ? katexInline(c.reponseTex) : nombre(c.reponse))).join(' ; ');
     else rep = state.reponseTex ? katexInline(state.reponseTex) : (typeof state.reponse === 'string' ? renderChoiceHTML(state.reponse) : nombre(state.reponse));
+    if (state.unite && !state.reponseTex) rep += ` ${state.unite}`;
     if (rep !== '' && rep !== undefined) { const p = document.createElement('p'); p.className = 'sol-answer'; p.innerHTML = `Réponse : <strong>${rep}</strong>`; sol.appendChild(p); renderMath(p); }
   }
 
@@ -757,7 +797,7 @@ export function mountQuiz(container, questions, hooks = {}, opts = {}) {
 
     wrap.innerHTML = `
       <div class="quiz-progress">Question ${idx + 1} / ${total}</div>
-      <div class="quiz-bar"><span style="width:${(idx / total) * 100}%"></span></div>
+      <div class="quiz-bar"><span style="width:${(idx / total) * 100}%; --depuis:${(Math.max(0, idx - 1) / total) * 100}%"></span></div>
       <p class="quiz-question">${q.question}</p>
       <div class="ex-visuel" data-visuel></div>
       ${body}
@@ -771,17 +811,20 @@ export function mountQuiz(container, questions, hooks = {}, opts = {}) {
 
     const fb = wrap.querySelector('[data-feedback]');
 
-    const resolve = (ok) => {
+    const resolve = (ok, message = null) => {
       if (answered[idx]) return;
       answered[idx] = true;
       if (ok) score++;
       fb.className = ok ? 'ex-feedback is-ok' : 'ex-feedback is-err';
-      fb.innerHTML = (ok ? '<span class="fb-icon">✓</span> Correct ! ' : '<span class="fb-icon">✗</span> ')
+      fb.innerHTML = (ok ? `${FB_OK} Correct ! ` : `${FB_KO} `)
+        + (!ok && message ? `${message} ` : '')
         + (q.explication ? q.explication : (ok ? '' : 'Réponse incorrecte.'));
       renderMath(fb);
+      rejouer(fb, 'apparait');
+      if (!ok) rejouer(wrap.querySelector('.answer-row, .qcm-group, .vf-group'), 'secoue');
       const next = document.createElement('button');
       next.className = 'btn btn-primary quiz-next';
-      next.textContent = idx + 1 < total ? 'Question suivante →' : 'Voir mon résultat';
+      next.innerHTML = idx + 1 < total ? `Question suivante ${icone('fleche', 18)}` : 'Voir mon résultat';
       next.addEventListener('click', () => { idx++; idx < total ? renderQuestion() : renderResult(); });
       fb.appendChild(next);
       wrap.querySelectorAll('button[data-choice],button[data-vf],[data-act="valid"]')
@@ -800,7 +843,7 @@ export function mountQuiz(container, questions, hooks = {}, opts = {}) {
       }));
     const input = wrap.querySelector('.answer-input');
     if (input) {
-      const v = () => resolve(checkAnswer(input.value, q));
+      const v = () => { const ok = checkAnswer(input.value, q); resolve(ok, ok ? null : diagnostic(input.value, q)); };
       wrap.querySelector('[data-act="valid"]').addEventListener('click', v);
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') v(); });
     }
@@ -814,19 +857,33 @@ export function mountQuiz(container, questions, hooks = {}, opts = {}) {
     const xp = mode === 'examen' ? score * 10 + (passed ? 50 : 0) : (passed && !dejaValide ? score * 10 + 50 : 0);
     let msg;
     if (mode === 'examen') {
-      msg = pct >= 80 ? '🎉 Excellent ! Tu es prêt·e.' : pct >= 50 ? '👍 Pas mal — continue à t\'entraîner.' : '💪 Courage, retravaille les chapitres concernés.';
+      msg = pct >= 80 ? 'Excellent ! Tu es prêt·e.' : pct >= 50 ? 'Pas mal. Continue à t\'entraîner.' : 'Retravaille les chapitres concernés, puis retente.';
     } else if (passed) {
-      msg = dejaValide ? '✅ Toujours validé — bel entraînement !' : '🏅 Chapitre validé ! Badge débloqué.';
+      msg = dejaValide ? 'Toujours validé. Bel entraînement !' : 'Chapitre validé ! Badge débloqué.';
     } else {
       msg = 'Presque ! Atteins 80 % pour décrocher le badge. Réessaie quand tu veux.';
     }
     wrap.innerHTML = `
       <div class="quiz-result ${passed ? 'pass' : 'fail'}">
-        <div class="quiz-score">${score} / ${total}</div>
+        ${passed ? `<span class="quiz-tampon" aria-hidden="true">${mode === 'examen' ? 'Réussi' : 'Validé'}</span>` : ''}
+        <div class="quiz-score"><span data-compte>0</span> / ${total}</div>
         <p>${msg}</p>
         ${xp ? `<p class="quiz-xp">+${xp} XP</p>` : ''}
-        <button class="btn btn-ghost" data-act="retry">🔄 ${mode === 'examen' ? 'Refaire un examen' : 'Refaire le quiz'}</button>
+        <button class="btn btn-ghost" data-act="retry">${icone('revision', 18)} ${mode === 'examen' ? 'Refaire un examen' : 'Refaire le quiz'}</button>
       </div>`;
+    // Le score défile de 0 à la note obtenue
+    const compteur = wrap.querySelector('[data-compte]');
+    const reduit = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduit || !score) compteur.textContent = score;
+    else {
+      const t0 = performance.now(), duree = 700 + score * 60;
+      const pas = (t) => {
+        const k = Math.min(1, (t - t0) / duree);
+        compteur.textContent = Math.round(score * (1 - Math.pow(1 - k, 3)));
+        if (k < 1) requestAnimationFrame(pas);
+      };
+      requestAnimationFrame(pas);
+    }
     wrap.querySelector('[data-act="retry"]').addEventListener('click', () => {
       idx = 0; score = 0; answered.fill(false); renderQuestion();
     });

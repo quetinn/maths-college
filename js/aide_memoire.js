@@ -65,4 +65,45 @@ export default [
       { titre: 'Scratch : polygone régulier', formules: ['\\text{répéter } n \\text{ fois : avancer, tourner de } \\dfrac{360°}{n}', 'n = 3 \\to 120°, \\quad n = 4 \\to 90°, \\quad n = 6 \\to 60°'] },
     ],
   },
+  // ---------------------------------------------------------- Physique-chimie
+  {
+    theme: 'pc_matiere', matiere: 'physique', titre: 'Matière', icone: '⚗️',
+    fiches: [
+      { titre: 'États de la matière', formules: ['\\text{solide : forme et volume propres}', '\\text{liquide : volume propre, prend la forme du récipient}', '\\text{gaz : occupe tout l\'espace, compressible}'] },
+      { titre: "Changements d'état", formules: ['\\text{fusion / solidification : solide} \\leftrightarrow \\text{liquide}', '\\text{vaporisation / liquéfaction : liquide} \\leftrightarrow \\text{gaz}', '\\text{corps pur : palier de température ; la masse se conserve}'] },
+      { titre: 'Masse, volume, mélanges', formules: ['1 \\text{ L} = 1\\,000 \\text{ mL}, \\quad 1 \\text{ mL} = 1 \\text{ cm}^3, \\quad 1 \\text{ m}^3 = 1\\,000 \\text{ L}', '1 \\text{ L d\'eau} \\leftrightarrow 1 \\text{ kg}', 'm_{\\text{solution}} = m_{\\text{solvant}} + m_{\\text{soluté}}'] },
+      { titre: 'Air, molécules, réactions', formules: ['\\text{air : } 78\\,\\% \\ \\mathrm{N_2}, \\ 21\\,\\% \\ \\mathrm{O_2}', '\\mathrm{C + O_2 \\rightarrow CO_2}', '\\mathrm{CH_4 + 2\\,O_2 \\rightarrow CO_2 + 2\\,H_2O}', '\\text{eau de chaux troublée} \\Rightarrow \\mathrm{CO_2}'] },
+      { titre: "L'atome", formules: ['\\text{protons} = Z, \\quad \\text{électrons} = Z \\ (\\text{atome neutre})', '\\text{neutrons} = A - Z', '\\text{atome} \\approx 10^{-10}\\text{ m}, \\quad \\text{noyau} \\approx 10^{-15}\\text{ m}'] },
+      { titre: 'Les ions', formules: ['\\text{charge} = \\text{protons} - \\text{électrons}', '\\text{perte d\'électrons} \\to \\text{ion positif (Cu}^{2+})', '\\text{gain d\'électrons} \\to \\text{ion négatif (Cl}^{-})'] },
+      { titre: 'Tests des ions', formules: ['\\text{soude : Cu}^{2+} \\text{ bleu, Fe}^{2+} \\text{ vert, Fe}^{3+} \\text{ rouille, Zn}^{2+} \\text{ blanc}', '\\text{nitrate d\'argent : Cl}^{-} \\text{ blanc qui noircit}'] },
+      { titre: 'pH', formules: ['\\text{pH} < 7 : \\text{acide}, \\quad = 7 : \\text{neutre}, \\quad > 7 : \\text{basique}', '\\text{acide : H}^{+} \\text{ majoritaires ; basique : HO}^{-} \\text{ majoritaires}', '\\text{dilution : le pH se rapproche de } 7'] },
+      { titre: 'Réactions', formules: ['\\text{Fe} + 2\\,\\text{H}^{+} \\rightarrow \\text{Fe}^{2+} + \\text{H}_2', '\\text{H}^{+} + \\text{HO}^{-} \\rightarrow \\text{H}_2\\text{O}', '\\text{atomes et masse se conservent}'] },
+      { titre: 'Masse volumique', formules: ['\\rho = \\dfrac{m}{V}', '1 \\text{ g/cm}^3 = 1\\,000 \\text{ kg/m}^3, \\quad \\rho_{\\text{eau}} = 1 \\text{ g/cm}^3', '\\rho_{\\text{objet}} < \\rho_{\\text{liquide}} \\Rightarrow \\text{il flotte}'] },
+    ],
+  },
+  {
+    theme: 'pc_mouvement', matiere: 'physique', titre: 'Mouvement et interactions', icone: '🚀',
+    fiches: [
+      { titre: 'Vitesse', formules: ['v = \\dfrac{d}{t}, \\quad d = v \\times t, \\quad t = \\dfrac{d}{v}', '1 \\text{ m/s} = 3{,}6 \\text{ km/h}'] },
+      { titre: 'Forces', formules: ['\\text{point d\'application, direction, sens, valeur (N)}', '\\text{longueur} = \\dfrac{\\text{valeur}}{\\text{échelle}}', '\\text{immobile ou uniforme} \\Rightarrow \\text{forces qui se compensent}'] },
+      { titre: 'Poids', formules: ['P = m \\times g', 'g_{\\text{Terre}} \\approx 9{,}8 \\text{ N/kg}, \\quad g_{\\text{Lune}} \\approx 1{,}6 \\text{ N/kg}', 'F = G \\times \\dfrac{m_A \\times m_B}{d^2}'] },
+    ],
+  },
+  {
+    theme: 'pc_energie', matiere: 'physique', titre: 'Énergie', icone: '⚡',
+    fiches: [
+      { titre: 'Circuits : lois', formules: ['\\text{série : } I = I_1 = I_2, \\quad U = U_1 + U_2', '\\text{dérivation : } I = I_1 + I_2, \\quad U = U_1 = U_2', '\\text{ampèremètre en série, voltmètre en dérivation}'] },
+      { titre: "Bilan d'énergie", formules: ['E_{\\text{reçue}} = E_{\\text{utile}} + E_{\\text{perdue}}', '1 \\text{ kJ} = 1\\,000 \\text{ J}'] },
+      { titre: 'Énergie cinétique', formules: ['E_c = \\dfrac{1}{2} \\times m \\times v^2 \\quad (\\text{J, kg, m/s})', 'd_{\\text{arrêt}} = d_{\\text{réaction}} + d_{\\text{freinage}}'] },
+      { titre: "Loi d'Ohm", formules: ['U = R \\times I \\quad (\\text{V}, \\Omega, \\text{A})', '1 \\text{ A} = 1\\,000 \\text{ mA}'] },
+      { titre: 'Puissance et énergie électriques', formules: ['P = U \\times I', 'E = P \\times t \\quad (\\text{J : W et s ; kWh : kW et h})', '1 \\text{ kWh} = 3{,}6 \\times 10^{6} \\text{ J}'] },
+    ],
+  },
+  {
+    theme: 'pc_signaux', matiere: 'physique', titre: 'Signaux', icone: '📡',
+    fiches: [
+      { titre: 'Son', formules: ['v_{\\text{air}} \\approx 340 \\text{ m/s}, \\quad v_{\\text{eau}} \\approx 1\\,500 \\text{ m/s}', 'f = \\dfrac{1}{T}', '\\text{audible : de } 20 \\text{ Hz à } 20\\,000 \\text{ Hz}'] },
+      { titre: 'Écho et lumière', formules: ['d = \\dfrac{v \\times t}{2} \\ (\\text{aller-retour})', 'c \\approx 3 \\times 10^{8} \\text{ m/s}'] },
+    ],
+  },
 ];

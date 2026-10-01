@@ -17,16 +17,33 @@ export const NIVEAUX = [
   { id: '3e', label: '3ᵉ', long: 'Troisième' },
 ];
 
-export const THEMES = [
-  { id: 'nombres_calculs', label: 'Nombres et calculs',             icone: '🔢' },
-  { id: 'fonctions',       label: 'Proportionnalité et fonctions',  icone: '📈' },
-  { id: 'geometrie',       label: 'Géométrie et grandeurs',         icone: '📐' },
-  { id: 'donnees',         label: 'Données et probabilités',        icone: '📊' },
-  { id: 'algo',            label: 'Algorithmique et programmation', icone: '💻' },
+/**
+ * Matières. `niveaux` : niveaux déjà rédigés (les autres s'affichent « bientôt »).
+ * Identifiants de physique-chimie : p (3ᵉ), pr (4ᵉ), pv (5ᵉ).
+ */
+export const MATIERES = [
+  { id: 'maths',    label: 'Maths',           niveaux: ['5e', '4e', '3e'] },
+  { id: 'physique', label: 'Physique-chimie', niveaux: ['5e', '4e', '3e'] },
 ];
 
+export const THEMES = [
+  { id: 'nombres_calculs', matiere: 'maths', label: 'Nombres et calculs',             icone: '🔢' },
+  { id: 'fonctions',       matiere: 'maths', label: 'Proportionnalité et fonctions',  icone: '📈' },
+  { id: 'geometrie',       matiere: 'maths', label: 'Géométrie et grandeurs',         icone: '📐' },
+  { id: 'donnees',         matiere: 'maths', label: 'Données et probabilités',        icone: '📊' },
+  { id: 'algo',            matiere: 'maths', label: 'Algorithmique et programmation', icone: '💻' },
+  // Physique-chimie : les quatre thèmes du programme de cycle 4
+  { id: 'pc_matiere',   matiere: 'physique', label: 'Organisation et transformations de la matière', icone: '⚗️' },
+  { id: 'pc_mouvement', matiere: 'physique', label: 'Mouvement et interactions',                     icone: '🚀' },
+  { id: 'pc_energie',   matiere: 'physique', label: "L'énergie et ses conversions",                  icone: '⚡' },
+  { id: 'pc_signaux',   matiere: 'physique', label: 'Des signaux pour observer et communiquer',      icone: '📡' },
+];
+
+const matiereDuTheme = (theme) => (THEMES.find((t) => t.id === theme) || {}).matiere || 'maths';
+
 const ch = (niveau, id, titre, theme, icone, fichier) => ({
-  id, niveau, titre, theme, icone, module: fichier ? `./chapters/${niveau}/${fichier}` : null,
+  id, niveau, titre, theme, icone, matiere: matiereDuTheme(theme),
+  module: fichier ? `./chapters/${matiereDuTheme(theme) === 'maths' ? '' : 'physique/'}${niveau}/${fichier}` : null,
 });
 
 export const CHAPTERS = [
@@ -88,12 +105,54 @@ export const CHAPTERS = [
   ch('3e', 'c15', 'Statistiques', 'donnees', '📊', 'c15_statistiques.js'),
   ch('3e', 'c16', 'Probabilités', 'donnees', '🎲', 'c16_probabilites.js'),
   ch('3e', 'c17', 'Algorithmique', 'algo', '💻', 'c17_algorithmique.js'),
+
+  // ====================================================== Physique-chimie
+  // 5ᵉ (identifiants pv, comme le « v » des maths de 5ᵉ).
+  ch('5e', 'pv01', 'Les états de la matière', 'pc_matiere', '🧊', 'pv01_etats_matiere.js'),
+  ch('5e', 'pv02', "Les changements d'état", 'pc_matiere', '🌡️', 'pv02_changements_etat.js'),
+  ch('5e', 'pv03', 'Masse et volume', 'pc_matiere', '⚖️', 'pv03_masse_volume.js'),
+  ch('5e', 'pv04', 'Mélanges et solutions', 'pc_matiere', '🥤', 'pv04_melanges.js'),
+  ch('5e', 'pv05', 'Décrire un mouvement', 'pc_mouvement', '🏃', 'pv05_mouvement.js'),
+  ch('5e', 'pv06', "Les sources d'énergie", 'pc_energie', '🔋', 'pv06_energie.js'),
+  ch('5e', 'pv07', 'Le circuit électrique', 'pc_energie', '💡', 'pv07_circuit.js'),
+  ch('5e', 'pv08', 'Circuits en série et en dérivation', 'pc_energie', '🎄', 'pv08_serie_derivation.js'),
+  ch('5e', 'pv09', 'La lumière', 'pc_signaux', '🔦', 'pv09_lumiere.js'),
+
+  // 4ᵉ (identifiants pr, comme le « r » des maths de 4ᵉ).
+  ch('4e', 'pr01', "L'air et les molécules", 'pc_matiere', '🫧', 'pr01_air_molecules.js'),
+  ch('4e', 'pr02', 'Les transformations chimiques', 'pc_matiere', '⚗️', 'pr02_transformations.js'),
+  ch('4e', 'pr03', 'Les combustions', 'pc_matiere', '🔥', 'pr03_combustions.js'),
+  ch('4e', 'pr04', 'Atomes et équations de réaction', 'pc_matiere', '🧮', 'pr04_equations.js'),
+  ch('4e', 'pr05', 'Mouvement et vitesse', 'pc_mouvement', '🚄', 'pr05_mouvement_vitesse.js'),
+  ch('4e', 'pr06', 'Actions mécaniques et interactions', 'pc_mouvement', '🤝', 'pr06_interactions.js'),
+  ch('4e', 'pr07', 'Intensité et tension', 'pc_energie', '🔋', 'pr07_intensite_tension.js'),
+  ch('4e', 'pr08', "L'énergie et ses conversions", 'pc_energie', '⚡', 'pr08_energie_conversions.js'),
+  ch('4e', 'pr09', 'Le son', 'pc_signaux', '🔊', 'pr09_son.js'),
+  ch('4e', 'pr10', 'La lumière : vitesse et distances', 'pc_signaux', '🌠', 'pr10_lumiere_vitesse.js'),
+
+  // 3ᵉ : programme de cycle 4 (BO n°31 du 30 juillet 2020), découpage calé
+  // sur le manuel LeLivreScolaire utilisé en classe.
+  ch('3e', 'p01', "De l'Univers aux atomes", 'pc_matiere', '⚛️', 'p01_univers_atomes.js'),
+  ch('3e', 'p02', 'Les ions dans notre quotidien', 'pc_matiere', '🧪', 'p02_ions.js'),
+  ch('3e', 'p03', 'Quand les acides et les bases réagissent', 'pc_matiere', '🧫', 'p03_acides_bases.js'),
+  ch('3e', 'p04', 'La masse volumique', 'pc_matiere', '🧊', 'p04_masse_volumique.js'),
+  ch('3e', 'p05', 'Vitesse et mouvement', 'pc_mouvement', '🏃', 'p05_vitesse_mouvement.js'),
+  ch('3e', 'p06', 'Les forces', 'pc_mouvement', '➡️', 'p06_forces.js'),
+  ch('3e', 'p07', 'Le poids', 'pc_mouvement', '🌍', 'p07_poids.js'),
+  ch('3e', 'p08', "La conservation de l'énergie", 'pc_energie', '🎢', 'p08_energie.js'),
+  ch('3e', 'p09', "Résistance et loi d'Ohm", 'pc_energie', '💡', 'p09_loi_ohm.js'),
+  ch('3e', 'p10', 'Puissance et énergie électriques', 'pc_energie', '🔌', 'p10_puissance_energie.js'),
+  ch('3e', 'p11', 'Signaux sonores et lumineux', 'pc_signaux', '🔊', 'p11_signaux.js'),
 ];
 
-// Numérotation « Chapitre n » à l'intérieur de chaque niveau.
-NIVEAUX.forEach((n) => CHAPTERS.filter((c) => c.niveau === n.id).forEach((c, i) => { c.num = i + 1; }));
+// Numérotation « Chapitre n » à l'intérieur de chaque niveau, matière par matière.
+NIVEAUX.forEach((n) => MATIERES.forEach((m) => CHAPTERS.filter((c) => c.niveau === n.id && c.matiere === m.id).forEach((c, i) => { c.num = i + 1; })));
 
 export const chapterById = (id) => CHAPTERS.find((c) => c.id === id);
 export const themeById = (id) => THEMES.find((t) => t.id === id);
 export const niveauById = (id) => NIVEAUX.find((n) => n.id === id);
-export const chaptersOf = (niveau, theme) => CHAPTERS.filter((c) => c.niveau === niveau && (!theme || c.theme === theme));
+export const matiereById = (id) => MATIERES.find((m) => m.id === id) || MATIERES[0];
+export const themesOf = (matiere) => THEMES.filter((t) => t.matiere === matiere);
+/** Chapitres d'un niveau (d'un thème, ou d'une matière : les maths par défaut). */
+export const chaptersOf = (niveau, theme, matiere = 'maths') =>
+  CHAPTERS.filter((c) => c.niveau === niveau && (theme ? c.theme === theme : c.matiere === matiere));

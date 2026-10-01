@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette A — Cahier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Direction A — « Cahier » : le cahier Seyès du collège français.
+   Encre bleue, marge rouge, surligneur fluo, annotations au stylo rouge. */
+:root {
+  --papier: #ffffff;
+  --fond: #eef1f8;
+  --ligne: #d4dcf3;       /* réglure Seyès */
+  --ligne-forte: #b3c0ea;
+  --marge: #e5484d;       /* marge rouge */
+  --encre: #1d3fb8;       /* bleu encre */
+  --graphite: #23262d;
+  --gris: #6a7080;
+  --fluo: #ffe45c;        /* surligneur */
+  --fluo-vert: #b6f09c;
+  --maths: #1d3fb8;
+  --physique: #d9480f;
+  --ok: #1f8a4c;
+  --display: "Bricolage Grotesque", system-ui, sans-serif;
+  --texte: "Lexend", system-ui, sans-serif;
+  --main: "Caveat", cursive;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fond); color: var(--graphite); font: 17px/1.55 var(--texte); }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; }
+
+/* ----- Présentation de la maquette ----- */
+.note { max-width: 1100px; margin: 0 auto; padding: 28px 16px 8px; }
+.note h1 { font: 800 1.9rem/1.1 var(--display); margin: 0 0 6px; }
+.note p { margin: 0 0 10px; color: var(--gris); max-width: 70ch; }
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.sw { display: flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--gris); }
+.sw i { width: 18px; height: 18px; border-radius: 4px; border: 1px solid #0002; }
+.ecrans { max-width: 1100px; margin: 0 auto; padding: 16px; display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
+.ecran { width: 390px; max-width: 100%; }
+.ecran > h2 { font: 700 .85rem var(--texte); text-transform: uppercase; letter-spacing: .08em; color: var(--gris); margin: 0 0 8px; }
+.tel { height: 820px; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; background: var(--papier); border-radius: 28px; box-shadow: 0 1px 0 #0001, 0 20px 50px -20px #1d3fb840; border: 1px solid #d8def0; position: relative; }
+
+/* ----- Le papier : réglure Seyès + marge ----- */
+.page {
+  min-height: 100%;
+  background:
+    linear-gradient(90deg, transparent 46px, var(--marge) 46px, var(--marge) 47.5px, transparent 47.5px),
+    repeating-linear-gradient(180deg, transparent 0 31px, var(--ligne-forte) 31px 32px),
+    repeating-linear-gradient(180deg, transparent 0 7px, var(--ligne) 7px 8px);
+  background-color: var(--papier);
+  padding: 0 18px 40px 62px;
+}
+
+/* Barre du haut */
+.barre { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px 62px; background: #fffffff0; backdrop-filter: blur(6px); border-bottom: 1.5px solid var(--graphite); }
+.marque { font: 800 1.15rem/1 var(--display); letter-spacing: -.01em; }
+.marque b { color: var(--encre); }
+.ico-btn { width: 36px; height: 36px; display: grid; place-items: center; border: 1.5px solid var(--graphite); border-radius: 50%; background: #fff; cursor: pointer; }
+.ico-btn svg { width: 18px; height: 18px; }
+
+/* Onglets de matière : des intercalaires */
+.matieres { display: flex; gap: 4px; margin: 16px 0 0 -8px; }
+.matiere { flex: 1; padding: 8px 10px 10px; border: 1.5px solid var(--graphite); border-bottom: none; border-radius: 10px 10px 0 0; background: #f4f5f8; font: 700 .9rem var(--display); cursor: pointer; text-align: left; position: relative; }
+.matiere small { display: block; font: 400 .72rem var(--texte); color: var(--gris); }
+.matiere[aria-selected="true"] { background: #fff; top: 1.5px; }
+.matiere[aria-selected="true"].phys { box-shadow: inset 0 4px 0 var(--physique); }
+.matiere.bientot { opacity: .45; flex: .6; }
+.sous-onglets { border-top: 1.5px solid var(--graphite); margin: 0 0 0 -8px; }
+
+.date { font: 500 1.35rem var(--main); color: var(--encre); margin: 18px 0 2px; }
+h2.titre { font: 800 1.7rem/1.05 var(--display); letter-spacing: -.02em; margin: 0 0 18px; }
+h2.titre .souligne { background: linear-gradient(transparent 58%, var(--fluo) 58% 92%, transparent 92%); padding: 0 2px; }
+
+/* Reprendre : une fiche bristol agrafée */
+.reprendre { display: block; position: relative; background: #fffdf2; border: 1.5px solid var(--graphite); border-radius: 4px; padding: 14px 14px 14px; box-shadow: 4px 4px 0 var(--graphite); text-decoration: none; color: inherit; margin: 0 0 22px; transform: rotate(-.6deg); transition: transform .2s, box-shadow .2s; }
+.reprendre:hover { transform: rotate(0) translate(-1px,-1px); box-shadow: 5px 5px 0 var(--graphite); }
+.reprendre .etiq { font: 700 .72rem var(--texte); text-transform: uppercase; letter-spacing: .08em; color: var(--physique); }
+.reprendre h3 { font: 800 1.2rem/1.2 var(--display); margin: 4px 0 6px; }
+.reprendre .suite { display: flex; justify-content: space-between; align-items: center; font-size: .9rem; color: var(--gris); }
+.reprendre .go { font: 700 .95rem var(--texte); color: #fff; background: var(--encre); border-radius: 999px; padding: 6px 14px; }
+.agrafe { position: absolute; top: -8px; z-index: 1; left: 24px; width: 34px; height: 8px; border: 2px solid #9aa0ad; border-bottom: none; border-radius: 3px 3px 0 0; }
+
+.secondaires { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 26px; }
+.sec { border: 1.5px solid var(--graphite); border-radius: 10px; padding: 10px 12px; background: #fff; font-size: .9rem; }
+.sec b { display: block; font: 700 .98rem var(--display); }
+.sec span { color: var(--gris); font-size: .82rem; }
+
+/* Sommaire du cahier */
+.theme { margin: 0 0 22px; }
+.theme h4 { font: 700 .78rem var(--texte); text-transform: uppercase; letter-spacing: .1em; color: var(--gris); margin: 0 0 6px; display: flex; align-items: center; gap: 8px; }
+.theme h4::after { content: ""; flex: 1; border-top: 1.5px dashed var(--ligne-forte); }
+.chap { display: grid; grid-template-columns: 26px 1fr auto; align-items: baseline; gap: 8px; padding: 6px 0; border-bottom: 1px solid transparent; text-decoration: none; color: inherit; line-height: 1.3; }
+.chap .n { font: 700 1.05rem var(--main); color: var(--marge); text-align: right; }
+.chap .t { font-weight: 700; }
+.chap .m { font: 700 1.2rem var(--main); color: var(--encre); white-space: nowrap; }
+.chap .m.vide { color: var(--ligne-forte); }
+.chap:hover .t { text-decoration: underline; text-decoration-color: var(--fluo); text-decoration-thickness: 6px; text-underline-offset: -2px; text-decoration-skip-ink: none; }
+.chap.encours .t { background: linear-gradient(transparent 60%, var(--fluo) 60% 95%, transparent 95%); }
+
+/* ----- Page chapitre ----- */
+.fil { font-size: .82rem; color: var(--gris); margin: 16px 0 4px; }
+.fil a { color: var(--encre); }
+.chap-titre { font: 800 1.85rem/1.05 var(--display); letter-spacing: -.02em; margin: 0 0 4px; }
+.chap-sous { font: 500 1.3rem var(--main); color: var(--physique); margin: 0 0 14px; }
+.tabs { display: flex; gap: 14px; border-bottom: 1.5px solid var(--graphite); margin: 0 0 18px; font-weight: 700; font-size: .92rem; overflow-x: auto; }
+.tabs span { padding: 6px 0; white-space: nowrap; color: var(--gris); cursor: pointer; }
+.tabs span.on { color: var(--graphite); box-shadow: inset 0 -4px 0 var(--fluo); }
+
+.encadre { border: 1.5px solid var(--graphite); border-radius: 6px; padding: 12px 14px; background: #fff; margin: 0 0 18px; position: relative; }
+.encadre .coin { position: absolute; top: -11px; left: 10px; background: #fff; padding: 0 6px; font: 700 .72rem var(--texte); text-transform: uppercase; letter-spacing: .1em; color: var(--encre); }
+.formule { font: 800 2rem/1 var(--display); text-align: center; margin: 8px 0 6px; letter-spacing: .02em; }
+.formule span { background: linear-gradient(transparent 55%, var(--fluo) 55% 92%, transparent 92%); background-size: 0% 100%; background-repeat: no-repeat; animation: surligne .9s .3s ease-out forwards; }
+@keyframes surligne { to { background-size: 100% 100%; } }
+.unites { display: flex; justify-content: center; gap: 14px; font-size: .85rem; color: var(--gris); }
+.unites b { color: var(--graphite); }
+
+/* Figure animée */
+.figure { margin: 0 0 18px; }
+.figure svg { width: 100%; height: auto; display: block; }
+.fil-circuit { fill: none; stroke: var(--graphite); stroke-width: 2.5; stroke-linejoin: round; }
+.flux { fill: none; stroke: var(--encre); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0.1 16; }
+.legende { font: 500 1.15rem var(--main); fill: var(--marge); }
+.lcd { font: 700 13px var(--texte); fill: var(--graphite); }
+.ctrl { display: flex; align-items: center; gap: 10px; font-size: .88rem; margin-top: 6px; }
+.ctrl input[type=range] { flex: 1; accent-color: var(--encre); }
+.ctrl .val { font: 700 1.1rem var(--main); color: var(--encre); min-width: 58px; text-align: right; }
+.play { border: 1.5px solid var(--graphite); background: #fff; border-radius: 999px; width: 34px; height: 34px; display: grid; place-items: center; cursor: pointer; flex: none; }
+
+/* Exercice */
+.exo .enonce { margin: 0 0 10px; }
+.saisie { display: flex; gap: 8px; align-items: center; }
+.saisie label { font: 800 1.2rem var(--display); }
+.saisie input { flex: 1; min-width: 0; border: none; border-bottom: 2px solid var(--encre); background: transparent; font: 700 1.5rem var(--main); color: var(--encre); padding: 2px 4px; }
+.saisie input:focus { outline: none; background: #eef2ff; }
+.valider { border: 1.5px solid var(--graphite); background: var(--graphite); color: #fff; border-radius: 999px; padding: 7px 14px; font-weight: 700; cursor: pointer; }
+.retour { font: 500 1.35rem/1.25 var(--main); color: var(--marge); margin: 12px 0 0; min-height: 1.5em; }
+.retour.ok { color: var(--ok); }
+.aide { font-size: .8rem; color: var(--gris); margin-top: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .formule span { animation: none; background-size: 100% 100%; }
+  .reprendre { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<section class="note">
+  <h1>A · Cahier</h1>
+  <p>Le site reprend le cahier Seyès que l'élève a dans son sac : réglure bleue, marge rouge, surligneur fluo pour ce qui est à retenir, corrections au stylo rouge. C'est une identité qu'aucun autre site ne peut avoir sans que ce soit une copie de l'école elle-même.</p>
+  <p><b>Le risque pris :</b> une écriture manuscrite (Caveat) pour les annotations et les réponses, réservée à ce qui est « écrit à la main » dans un vrai cahier.</p>
+  <div class="swatches">
+    <span class="sw"><i style="background:#1d3fb8"></i>Encre #1d3fb8</span>
+    <span class="sw"><i style="background:#e5484d"></i>Marge #e5484d</span>
+    <span class="sw"><i style="background:#ffe45c"></i>Fluo #ffe45c</span>
+    <span class="sw"><i style="background:#d4dcf3"></i>Réglure #d4dcf3</span>
+    <span class="sw"><i style="background:#d9480f"></i>Physique #d9480f</span>
+    <span class="sw"><i style="background:#23262d"></i>Graphite #23262d</span>
+  </div>
+  <p style="font-size:.85rem">Polices : Bricolage Grotesque (titres) · Lexend (texte, conçue pour la fluidité de lecture) · Caveat (annotations)</p>
+</section>
+
+<div class="ecrans">
+  <!-- ======================= ACCUEIL ======================= -->
+  <div class="ecran">
+    <h2>Accueil</h2>
+    <div class="tel">
+      <header class="barre">
+        <span class="marque">Cours <b>Collège</b></span>
+        <button class="ico-btn" aria-label="Mon compte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button>
+      </header>
+      <div class="page">
+        <div class="matieres" role="tablist">
+          <button class="matiere" role="tab" aria-selected="false">Maths<small>3ᵉ · 17 chapitres</small></button>
+          <button class="matiere phys" role="tab" aria-selected="true">Physique-chimie<small>3ᵉ · 11 chapitres</small></button>
+          <button class="matiere bientot" role="tab" aria-disabled="true">SVT<small>bientôt</small></button>
+        </div>
+        <div class="sous-onglets"></div>
+
+        <p class="date">mardi 30 septembre</p>
+        <h2 class="titre">On reprend <span class="souligne">la loi d'Ohm</span>&nbsp;?</h2>
+
+        <a class="reprendre" href="#">
+          <span class="agrafe"></span>
+          <span class="etiq">Chapitre 9 · Énergie</span>
+          <h3>Résistance et loi d'Ohm</h3>
+          <div class="suite"><span>Exercice 4 sur 9</span><span class="go">Reprendre</span></div>
+        </a>
+
+        <div class="secondaires">
+          <div class="sec"><b>Révision du jour</b><span>3 questions · 5 min</span></div>
+          <div class="sec"><b>Brevet blanc</b><span>Sciences · 30 min</span></div>
+        </div>
+
+        <div class="theme">
+          <h4>Matière</h4>
+          <a class="chap" href="#"><span class="n">1</span><span class="t">De l'Univers aux atomes</span><span class="m">18/20</span></a>
+          <a class="chap" href="#"><span class="n">2</span><span class="t">Les ions dans notre quotidien</span><span class="m">14/20</span></a>
+          <a class="chap" href="#"><span class="n">3</span><span class="t">Quand les acides et les bases réagissent</span><span class="m">11/20</span></a>
+          <a class="chap" href="#"><span class="n">4</span><span class="t">La masse volumique</span><span class="m vide">—</span></a>
+        </div>
+        <div class="theme">
+          <h4>Mouvement et interactions</h4>
+          <a class="chap" href="#"><span class="n">5</span><span class="t">Vitesse et mouvement</span><span class="m">16/20</span></a>
+          <a class="chap" href="#"><span class="n">6</span><span class="t">Les forces</span><span class="m vide">—</span></a>
+          <a class="chap" href="#"><span class="n">7</span><span class="t">Le poids</span><span class="m vide">—</span></a>
+        </div>
+        <div class="theme">
+          <h4>Énergie</h4>
+          <a class="chap" href="#"><span class="n">8</span><span class="t">La conservation de l'énergie</span><span class="m">9/20</span></a>
+          <a class="chap encours" href="#"><span class="n">9</span><span class="t">Résistance et loi d'Ohm</span><span class="m">en cours</span></a>
+          <a class="chap" href="#"><span class="n">10</span><span class="t">Puissance et énergie électriques</span><span class="m vide">—</span></a>
+        </div>
+        <div class="theme">
+          <h4>Signaux</h4>
+          <a class="chap" href="#"><span class="n">11</span><span class="t">Signaux sonores et lumineux</span><span class="m vide">—</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================= CHAPITRE ======================= -->
+  <div class="ecran">
+    <h2>Page chapitre</h2>
+    <div class="tel">
+      <header class="barre">
+        <span class="marque">Cours <b>Collège</b></span>
+        <button class="ico-btn" aria-label="Retour au sommaire"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
+      </header>
+      <div class="page">
+        <p class="fil"><a href="#">Physique-chimie</a> › Énergie › Chapitre 9</p>
+        <h2 class="chap-titre">Résistance et loi d'Ohm</h2>
+        <p class="chap-sous">Pourquoi une lampe brille moins ?</p>
+        <nav class="tabs"><span class="on">Cours</span><span>Méthode</span><span>Exercices</span><span>Quiz</span></nav>
+
+        <div class="encadre">
+          <span class="coin">À retenir</span>
+          <p class="formule"><span>U = R × I</span></p>
+          <div class="unites"><span><b>U</b> en volts (V)</span><span><b>R</b> en ohms (Ω)</span><span><b>I</b> en ampères (A)</span></div>
+        </div>
+
+        <div class="figure">
+          <svg id="circuitA" viewBox="-20 0 310 200" role="img" aria-label="Circuit : une pile de 6 volts, une résistance et un ampèremètre en série">
+            <path id="boucleA" class="fil-circuit" d="M40 60 H260 V160 H40 Z"/>
+            <path class="flux" id="fluxA" d="M40 60 H260 V160 H40 Z"/>
+            <!-- pile -->
+            <rect x="28" y="92" width="24" height="36" fill="#fff"/>
+            <line x1="26" y1="102" x2="54" y2="102" stroke="#23262d" stroke-width="2.5"/>
+            <line x1="33" y1="112" x2="47" y2="112" stroke="#23262d" stroke-width="5"/>
+            <text class="lcd" x="20" y="112" text-anchor="end">6 V</text>
+            <!-- résistance -->
+            <rect x="120" y="50" width="60" height="20" fill="#fff" stroke="#23262d" stroke-width="2.5"/>
+            <text class="lcd" x="150" y="40" text-anchor="middle" id="rTxtA">R = 40 Ω</text>
+            <!-- ampèremètre -->
+            <circle cx="260" cy="110" r="18" fill="#fff" stroke="#23262d" stroke-width="2.5"/>
+            <text x="260" y="116" text-anchor="middle" style="font:800 16px var(--display)">A</text>
+            <text class="legende" x="186" y="192" id="iTxtA">I = 0,15 A</text>
+            <text class="legende" x="70" y="192" style="fill:var(--encre)">électrons →</text>
+          </svg>
+          <div class="ctrl">
+            <button class="play" id="playA" aria-label="Mettre en pause l'animation"><svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="3.5" height="10" fill="currentColor"/><rect x="7.5" y="1" width="3.5" height="10" fill="currentColor"/></svg></button>
+            <label for="rA">Résistance</label>
+            <input id="rA" type="range" min="10" max="120" step="10" value="40">
+            <span class="val" id="rValA">40 Ω</span>
+          </div>
+        </div>
+
+        <div class="encadre exo">
+          <span class="coin">Exercice 4</span>
+          <p class="enonce">Un conducteur ohmique de résistance <b>R = 40 Ω</b> est branché aux bornes d'une pile de <b>6 V</b>. Calcule l'intensité du courant.</p>
+          <div class="saisie">
+            <label for="repA">I =</label>
+            <input id="repA" placeholder="ta réponse avec l'unité" autocomplete="off">
+            <button class="valider" id="valA">Valider</button>
+          </div>
+          <p class="retour" id="retA" aria-live="polite"></p>
+          <p class="aide">Essaie « 240 A », « 0,15 » ou « 0,15 A » pour voir les retours.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Circuit animé : la vitesse du flux d'électrons est proportionnelle à I = U / R.
+(() => {
+  const U = 6, flux = document.getElementById('fluxA'), r = document.getElementById('rA');
+  const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let I = U / 40, off = 0, joue = !reduit, t0 = performance.now();
+  const fmt = n => n.toLocaleString('fr-FR', { maximumFractionDigits: 3 });
+  function maj() {
+    const R = +r.value; I = U / R;
+    document.getElementById('rValA').textContent = R + ' Ω';
+    document.getElementById('rTxtA').textContent = 'R = ' + R + ' Ω';
+    document.getElementById('iTxtA').textContent = 'I = ' + fmt(I) + ' A';
+  }
+  function boucle(t) {
+    const dt = t - t0; t0 = t;
+    if (joue) { off -= dt * I * 0.25; flux.style.strokeDashoffset = off; }
+    requestAnimationFrame(boucle);
+  }
+  r.addEventListener('input', maj);
+  const p = document.getElementById('playA');
+  const icone = () => {
+    p.setAttribute('aria-label', joue ? "Mettre en pause l'animation" : "Lancer l'animation");
+    p.innerHTML = joue
+      ? '<svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="3.5" height="10" fill="currentColor"/><rect x="7.5" y="1" width="3.5" height="10" fill="currentColor"/></svg>'
+      : '<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>';
+  };
+  p.addEventListener('click', () => { joue = !joue; icone(); });
+  icone();
+  maj(); requestAnimationFrame(boucle);
+})();
+
+// Correction avec unités : le retour vise l'erreur précise.
+(() => {
+  const inp = document.getElementById('repA'), ret = document.getElementById('retA');
+  function verifier() {
+    const s = inp.value.trim().replace(',', '.').replace(/\s+/g, ' ');
+    const m = s.match(/^(-?\d*\.?\d+)\s*(m?a|ampères?)?$/i);
+    ret.className = 'retour';
+    if (!m) { ret.textContent = 'Écris un nombre suivi de son unité, par exemple 2,5 A.'; return; }
+    const v = +m[1], u = (m[2] || '').toLowerCase();
+    const enA = u === 'ma' ? v / 1000 : v;
+    if (Math.abs(v - 240) < 1e-9) { ret.textContent = 'Tu as calculé R × U. Isole I : I = U ÷ R.'; return; }
+    if (Math.abs(enA - 0.15) < 1e-9 && !u) { ret.textContent = 'Bon calcul ! Mais sans unité, un résultat ne veut rien dire : 0,15 quoi ?'; return; }
+    if (Math.abs(enA - 0.15) < 1e-9) { ret.className = 'retour ok'; ret.textContent = 'Juste ! I = 6 ÷ 40 = 0,15 A (soit 150 mA).'; return; }
+    ret.textContent = 'Pas tout à fait. Écris la loi d’Ohm, puis isole I.';
+  }
+  document.getElementById('valA').addEventListener('click', verifier);
+  inp.addEventListener('keydown', e => e.key === 'Enter' && verifier());
+})();
+</script>
+</body>
+</html>

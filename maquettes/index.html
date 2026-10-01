@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquettes Cours Collège</title>
+<style>
+  :root { --fond: #f3f4f7; --texte: #1b1d23; --gris: #626877; --trait: #d9dce3; }
+  body { margin: 0; background: var(--fond); color: var(--texte); font: 16px/1.55 system-ui, sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 1.6rem; margin: 0 0 6px; }
+  p { color: var(--gris); margin: 0 0 18px; max-width: 70ch; }
+  .choix { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .choix a { display: block; background: #fff; border: 1px solid var(--trait); border-radius: 14px; padding: 16px; color: inherit; text-decoration: none; }
+  .choix a:hover { border-color: var(--texte); }
+  .choix b { font-size: 1.15rem; display: block; margin-bottom: 4px; }
+  .choix span { color: var(--gris); font-size: .92rem; }
+  .bande { height: 10px; border-radius: 5px; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 14px; overflow: hidden; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--trait); vertical-align: top; }
+  th { background: #fafbfc; }
+  .scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Trois directions pour Cours Collège</h1>
+  <p>Les trois maquettes montrent le même contenu : l'accueil de la physique-chimie en 3ᵉ et le chapitre « Résistance et loi d'Ohm » (découpage de LeLivreScolaire). Le circuit est animé et réglable, et l'exercice corrige vraiment : essaie une réponse fausse, une réponse sans unité, puis la bonne.</p>
+  <div class="choix">
+    <a href="a_cahier.html"><div class="bande" style="background:repeating-linear-gradient(180deg,#fff 0 3px,#d4dcf3 3px 4px);border-left:6px solid #e5484d"></div><b>A · Cahier</b><span>Le cahier Seyès : encre bleue, marge rouge, surligneur, annotations manuscrites.</span></a>
+    <a href="b_instrument.html"><div class="bande" style="background:linear-gradient(90deg,#111418 60%,#cfd8c0 60% 80%,#0a9396 80%)"></div><b>B · Instrument</b><span>Les appareils de mesure : graduations, afficheurs, panneaux sombres. Sobre et précis.</span></a>
+    <a href="c_planche.html"><div class="bande" style="background:linear-gradient(90deg,#2238d6 55%,#ffcf33 55% 80%,#ff8fa3 80%)"></div><b>C · Planche</b><span>Les planches murales illustrées : aplats de couleur, titres d'affiche, un dessin par chapitre.</span></a>
+  </div>
+  <div class="scroll">
+  <table>
+    <tr><th></th><th>A · Cahier</th><th>B · Instrument</th><th>C · Planche</th></tr>
+    <tr><th>Ambiance</th><td>Familière, scolaire, chaleureuse</td><td>Sérieuse, « outil de grand »</td><td>Vivante, colorée, affiche</td></tr>
+    <tr><th>Schémas</th><td>Dessinés à l'encre, comme au tableau</td><td>Banc de mesure avec afficheurs</td><td>Illustrations pleines et lumineuses</td></tr>
+    <tr><th>Progression</th><td>Note sur 20 écrite au stylo</td><td>Règle graduée avec aiguille</td><td>Jauge dans chaque tuile</td></tr>
+    <tr><th>Mode sombre</th><td>Plus délicat (le papier est l'identité)</td><td>Naturel (panneaux déjà sombres)</td><td>Facile (aplats sur fond nuit)</td></tr>
+    <tr><th>Travail à prévoir</th><td>Moyen</td><td>Moyen</td><td>Plus élevé : une illustration par chapitre</td></tr>
+  </table>
+  </div>
+</main>
+</body>
+</html>
