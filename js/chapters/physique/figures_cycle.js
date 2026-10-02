@@ -836,7 +836,7 @@ export function interactions(host) {
 
 // ====================================================== LE SON : COURSE
 
-const MILIEUX_SON = [['air', 340], ['eau', 1500], ['acier', 5000], ['vide', 0]];
+const MILIEUX_SON = [['air', 340], ['eau', 1500], ['fer', 6000], ['vide', 0]];
 
 /** Un même son parcourt 1 km dans l'air, l'eau, l'acier… et pas dans le vide. */
 export function courseDuSon(host) {
@@ -854,7 +854,7 @@ export function courseDuSon(host) {
     let s = '';
     MILIEUX_SON.forEach(([nom, v], k) => {
       const y = 22 + k * 40, x0 = 58, x1 = 300;
-      s += `<rect x="${x0}" y="${y - 12}" width="${x1 - x0}" height="24" rx="12" class="pc-piste-son pc-piste-${nom}"/>`;
+      s += `<rect x="${x0}" y="${y - 12}" width="${x1 - x0}" height="24" rx="12" class="pc-piste-son pc-piste-${nom === 'fer' ? 'acier' : nom}"/>`;
       s += `<text x="${x0 - 8}" y="${y + 4}" text-anchor="end" class="pc-etiquette pc-etiquette-petite">${nom}</text>`;
       if (!v) { s += `<text x="${(x0 + x1) / 2}" y="${y + 4}" text-anchor="middle" class="pc-petit">le son ne se propage pas</text>`; return; }
       const duree = d / v, u = Math.min(1, tr / duree), x = x0 + 10 + u * (x1 - x0 - 20);
@@ -866,7 +866,7 @@ export function courseDuSon(host) {
   };
   const maj = () => {
     $(wrap, '[data-dv]').textContent = `${nb(d / 1000, 2)} km`;
-    $(wrap, '[data-txt]').innerHTML = `Durée pour parcourir ${d} m : air <strong>${nb(d / 340, 2)} s</strong>, eau <strong>${nb(d / 1500, 2)} s</strong>, acier <strong>${nb(d / 5000, 2)} s</strong>. Le son va plus vite dans les solides et les liquides que dans l'air ; dans le vide, il ne se propage pas.`;
+    $(wrap, '[data-txt]').innerHTML = `Durée pour parcourir ${d} m : air <strong>${nb(d / 340, 2)} s</strong>, eau <strong>${nb(d / 1500, 2)} s</strong>, fer <strong>${nb(d / 6000, 2)} s</strong>. Le son va plus vite dans les solides et les liquides que dans l'air ; dans le vide, il ne se propage pas.`;
   };
   const etat = animer(wrap, (dt) => { t += dt * acceleration(); if (t > tAir() + 1.5 * acceleration()) t = 0; dessiner(); });
   lierLecture(wrap, etat);
@@ -878,7 +878,7 @@ export function courseDuSon(host) {
 
 /** Échelle des niveaux sonores (fixe). */
 export function echelleDecibels(host) {
-  const NIVEAUX = [[0, "seuil d'audibilité"], [30, 'chuchotement'], [60, 'conversation'], [85, 'seuil de danger'], [100, 'concert, baladeur à fond'], [120, 'seuil de douleur'], [140, 'avion au décollage']];
+  const NIVEAUX = [[0, "seuil d'audibilité"], [30, 'chambre calme, la nuit'], [60, 'conversation'], [85, 'seuil de danger'], [100, 'marteau-piqueur tout proche'], [120, 'seuil de douleur']];
   const y = (L) => 186 - L * 1.25;
   let s = `<svg viewBox="0 0 320 200" class="pc-svg" role="img" aria-label="Échelle des niveaux sonores en décibels"><defs><linearGradient id="db-g" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#3fbf6a"/><stop offset="0.55" stop-color="#ffcf33"/><stop offset="0.62" stop-color="#ff8f3f"/><stop offset="1" stop-color="#e2294f"/></linearGradient></defs>`;
   s += `<rect x="60" y="${y(140)}" width="22" height="${186 - y(140)}" rx="11" fill="url(#db-g)"/>`;
@@ -927,4 +927,68 @@ export function voyageLumiere(host) {
   if (!etat.joue) u = 1;
   $(wrap, '[data-d]').addEventListener('change', (ev) => { k = +ev.target.value || 0; u = etat.joue ? 0 : 1; maj(); dessiner(); });
   maj(); dessiner();
+}
+
+// ===================================================== TEST DE L'EAU
+
+/** Liquides testés au sulfate de cuivre anhydre : [nom, contient de l'eau ?]. */
+export const LIQUIDES_TEST = [
+  ['eau du robinet', true], ['lait', true], ['jus d\'orange', true], ['vinaigre', true], ['soda', true],
+  ['huile', false], ['white-spirit', false], ['essence', false],
+];
+
+/** Test de présence d'eau : le sulfate de cuivre anhydre, blanc, bleuit au contact de l'eau. */
+export function testEau(host) {
+  let i = 0, verse = false;
+  const wrap = cadre(host, `
+    <div class="pc-choix"><label>Liquide testé <select data-liq>${LIQUIDES_TEST.map(([n], k) => `<option value="${k}">${n}</option>`).join('')}</select></label></div>
+    <svg viewBox="0 0 220 150" class="pc-svg pc-labo" role="img" aria-label="Test au sulfate de cuivre anhydre" data-svg></svg>
+    <div class="pc-boutons"><button type="button" class="btn btn-primary" data-verser>Verser une goutte</button></div>
+    <div class="fig-readout" data-txt></div>`);
+  const dessiner = () => {
+    const [nom, eau] = LIQUIDES_TEST[i];
+    $(wrap, '[data-svg]').innerHTML = `
+      <path d="M40 120 Q110 142 180 120 L170 108 Q110 124 50 108Z" class="pc-verre"/>
+      <ellipse cx="110" cy="108" rx="34" ry="9" class="pc-poudre ${verse && eau ? 'pc-poudre-bleue' : ''}"/>
+      <rect x="104" y="14" width="12" height="46" rx="4" class="pc-pipette"/>
+      ${verse ? '<circle cx="110" cy="66" r="5" class="pc-goutte"/>' : ''}
+      <text x="110" y="10" text-anchor="middle" class="pc-petit">${nom}</text>`;
+    $(wrap, '[data-txt]').innerHTML = !verse ? 'Le sulfate de cuivre anhydre est une poudre <strong>blanche</strong>.'
+      : eau ? `La poudre devient <strong>bleue</strong> : ${nom === 'eau du robinet' ? "c'est de l'eau" : `ce liquide (${nom}) contient de l'eau`}.`
+        : `La poudre reste <strong>blanche</strong> : ce liquide (${nom}) ne contient pas d'eau.`;
+  };
+  $(wrap, '[data-liq]').addEventListener('change', (e) => { i = +e.target.value || 0; verse = false; dessiner(); });
+  $(wrap, '[data-verser]').addEventListener('click', () => { verse = true; dessiner(); });
+  dessiner();
+}
+
+// ===================================================== SPECTRE DES ONDES
+
+/** Domaines des ondes électromagnétiques, des plus grandes longueurs d'onde aux plus petites. */
+export const DOMAINES_ONDES = [
+  ['ondes radio', 'pc-d-radio', 'Radio, télévision, téléphone portable : elles portent très loin et traversent les murs.', false],
+  ['micro-ondes', 'pc-d-micro', 'Wi-Fi, Bluetooth, four à micro-ondes, radars.', false],
+  ['infrarouge', 'pc-d-ir', 'Télécommande, caméra thermique : tout corps chaud en émet.', false],
+  ['lumière visible', 'pc-d-visible', "La seule partie que l'œil perçoit, du rouge au violet (longueurs d'onde de 780 à 380 nm).", true],
+  ['ultraviolet', 'pc-d-uv', 'Émis par le Soleil : il fait bronzer mais abîme la peau et les yeux.', false],
+  ['rayons X', 'pc-d-x', 'Ils traversent les tissus mous : radiographie médicale.', false],
+];
+
+/** Les ondes électromagnétiques : une bande à parcourir, un seul domaine visible. */
+export function spectre(host) {
+  let i = 3;
+  const wrap = cadre(host, `
+    ${segments('Domaine', DOMAINES_ONDES.map(([n], k) => [String(k), n]))}
+    <svg viewBox="0 0 320 96" class="pc-svg pc-spectre" role="img" aria-label="Les domaines des ondes électromagnétiques" data-svg></svg>
+    <div class="fig-readout" data-txt></div>`);
+  const dessiner = () => {
+    const l = 300 / DOMAINES_ONDES.length;
+    $(wrap, '[data-svg]').innerHTML = DOMAINES_ONDES.map(([, c], k) => `<rect x="${r1(10 + k * l)}" y="30" width="${r1(l)}" height="30" class="${c} ${k === i ? 'pc-d-actif' : ''}"/>`).join('')
+      + `<path d="M${r1(10 + (i + 0.5) * l)} 24 l-7 -12 h14z" class="pc-marque"/>`
+      + '<text x="10" y="80" class="pc-petit">grandes longueurs d\'onde</text><text x="310" y="80" text-anchor="end" class="pc-petit">petites longueurs d\'onde</text>';
+    const [nom, , texte, visible] = DOMAINES_ONDES[i];
+    $(wrap, '[data-txt]').innerHTML = `<strong>${nom.charAt(0).toUpperCase() + nom.slice(1)}</strong> — ${visible ? 'perçue par l\'œil' : 'invisible pour l\'œil humain'}. ${texte}`;
+  };
+  lierSegments(wrap, String(i), (v) => { i = +v; dessiner(); });
+  dessiner();
 }

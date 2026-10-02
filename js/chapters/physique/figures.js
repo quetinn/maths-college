@@ -249,8 +249,8 @@ export function laboIons(host, { solution = 'cuivre' } = {}) {
 // ============================================================== LE pH
 
 export const PRODUITS_PH = [
-  ['jus de citron', 2.4], ['vinaigre', 3], ['soda au cola', 2.5], ['jus de tomate', 4.2], ['lait', 6.7],
-  ['eau pure', 7], ['sang', 7.4], ["eau de mer", 8.2], ['savon', 10], ['eau de Javel', 12], ['déboucheur (soude)', 13.5],
+  ['jus de citron', 2.4], ['vinaigre', 2.8], ['soda au cola', 2.5], ['lait', 6.5],
+  ['eau pure', 7], ['sang', 7.4], ['savon', 10], ['eau de Javel', 11.5], ['déboucheur (soude concentrée)', 14],
 ];
 const couleurPH = (p) => `hsl(${Math.round(Math.max(0, Math.min(14, p)) * 20)}, 75%, 55%)`;
 
@@ -542,13 +542,13 @@ export function freinage(host) {
   let kmh = 50, mouille = false, pos = 0;
   const wrap = cadre(host, `
     <div class="fig-controls"><label>Vitesse <input type="range" min="30" max="130" step="10" value="${kmh}" data-v> <span class="fig-val" data-vv></span></label></div>
-    <label class="pc-case"><input type="checkbox" data-mouille> route mouillée</label>
+    <label class="pc-case"><input type="checkbox" data-mouille> route mouillée (exemple : freinage deux fois plus long)</label>
     <svg viewBox="0 0 320 110" class="pc-svg" role="img" aria-label="Distance d'arrêt d'une voiture" data-svg></svg>
     <div class="pc-boutons">${boutonLecture}</div>
     <div class="fig-readout" data-txt></div>`);
   const svg = $(wrap, '[data-svg]');
   const distances = () => {
-    const v = kmh / 3.6, dr = v * 1, df = (v * v) / (2 * (mouille ? 5 : 8));
+    const v = kmh / 3.6, dr = v * 1, df = (v * v) / (2 * (mouille ? 3.5 : 7));
     return { v, dr, df, da: dr + df };
   };
   const dessiner = () => {
@@ -571,7 +571,7 @@ export function freinage(host) {
   const etat = animer(wrap, (dt) => {
     const { v, dr, da } = distances();
     // Pendant la réaction, la voiture garde sa vitesse, puis elle décélère.
-    const a = mouille ? 5 : 8;
+    const a = mouille ? 3.5 : 7;
     if (pos < dr) pos += v * dt * 0.6;
     else if (pos < da) { const vr = Math.sqrt(Math.max(0, 2 * a * (da - pos))); pos += Math.max(0.5, vr) * dt * 0.6; }
     else pos += dt * 12; // pause avant de recommencer
@@ -707,7 +707,7 @@ export function compteur(host) {
   const maj = () => {
     const P = puissance(), E = (P / 1000) * heures;
     $(wrap, '[data-hv]').textContent = `${nb(heures, 1)} h`;
-    $(wrap, '[data-txt]').innerHTML = `E = P × t = ${nb(P / 1000, 3)} kW × ${nb(heures, 1)} h = <strong>${nb(E, 3)} kWh</strong> (soit ${nb(E * 3.6e6 / 1e6, 2)} MJ).<br>À 0,25 € le kWh, cela coûte environ <strong>${nb(E * 0.25, 2)} €</strong>.`;
+    $(wrap, '[data-txt]').innerHTML = `E = P × t = ${nb(P / 1000, 3)} kW × ${nb(heures, 1)} h = <strong>${nb(E, 3)} kWh</strong> (soit ${nb(E * 3.6e6 / 1e6, 2)} MJ).<br>À 0,20 € le kWh, cela coûte environ <strong>${nb(E * 0.25, 2)} €</strong>.`;
     dessiner();
   };
   const etat = animer(wrap, (dt) => { angle = (angle + dt * puissance() * 0.12) % 360; dessiner(); });

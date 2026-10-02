@@ -41,6 +41,10 @@ export default {
       type: 'propriete', titre: "L'intensité de pesanteur g",
       contenu: "$g$ dépend de l'astre : " + tableau([['Astre', ...ASTRES.map((a) => a[0])], ['g (N/kg)', ...ASTRES.map((a) => dec(a[1]))]]) + " Sur la Lune, un objet pèse environ 6 fois moins que sur Terre.",
     },
+    {
+      type: 'propriete', titre: "L'impesanteur",
+      contenu: "Dans la station spatiale, les astronautes flottent. Ce n'est pas parce que la Terre ne les attire plus : à cette altitude, la pesanteur est presque aussi forte qu'au sol. La station et ses occupants sont en <strong>chute libre</strong> permanente autour de la Terre : ils tombent ensemble, donc rien n'appuie sur rien. On appelle cet état l'<strong>impesanteur</strong>.",
+    },
     { type: 'figure', titre: 'Même masse, poids différent', contenu: "Change d'astre : le dynamomètre indique le poids, et la balle rebondit plus haut là où $g$ est faible.", render: (host) => poidsAstres(host) },
     {
       type: 'exemple', enonce: 'Quel est le poids, sur Terre, d\'un sac de $5$ kg ? Et sur la Lune ?',
@@ -113,6 +117,7 @@ export default {
           { enonce: 'Le poids est une force verticale, dirigée vers le bas.', reponse: true, _v: { e: 'Oui, vers le centre de la Terre.' } },
           { enonce: 'Sur la Lune, la masse d\'un astronaute est 6 fois plus petite.', reponse: false, _v: { e: 'Non : c\'est son poids qui est environ 6 fois plus petit ; sa masse ne change pas.' } },
           { enonce: 'La gravitation est une action à distance.', reponse: true, _v: { e: "Oui : les objets s'attirent sans se toucher." } },
+          { enonce: "Dans la station spatiale, les astronautes flottent parce que la Terre ne les attire plus.", reponse: false, _v: { e: "Non : la Terre les attire toujours. Ils sont en chute libre avec la station : c'est l'impesanteur." } },
           { enonce: 'Plus deux objets sont éloignés, plus ils s\'attirent.', reponse: false, _v: { e: "Non : l'attraction diminue quand la distance augmente." } },
           { enonce: 'Le poids est proportionnel à la masse.', reponse: true, _v: { e: 'Oui : P = m × g, avec g le coefficient de proportionnalité.' } },
         ]);

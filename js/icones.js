@@ -60,8 +60,29 @@ Object.assign(PICTOS, {
     <path ${trait} d="M4 16h8l10-8v28l-10-8H4zM28 15a9 9 0 0 1 0 14M33 10a16 16 0 0 1 0 24"/>`,
 });
 
+// SVT : les trois thèmes du programme
+Object.assign(PICTOS, {
+  // La planète Terre : un globe et ses méridiens
+  svt_terre: `
+    <circle ${plein} cx="22" cy="22" r="16"/>
+    <circle ${trait} cx="22" cy="22" r="16"/><path ${trait} d="M6 22h32M22 6c-8 9-8 23 0 32M22 6c8 9 8 23 0 32"/>`,
+  // Le vivant : une feuille et ses nervures
+  svt_vivant: `
+    <path ${plein} d="M8 37C7 18 19 7 38 7c1 19-10 31-30 30z"/>
+    <path ${trait} d="M8 37C7 18 19 7 38 7c1 19-10 31-30 30zM5 40 L29 16M17 28h9M17 28v-9"/>`,
+  // Le corps humain : un cœur et son pouls
+  svt_corps: `
+    <path ${plein} d="M22 38S6 28 6 16a8 8 0 0 1 16-3 8 8 0 0 1 16 3c0 12-16 22-16 22z"/>
+    <path ${trait} d="M22 38S6 28 6 16a8 8 0 0 1 16-3 8 8 0 0 1 16 3c0 12-16 22-16 22z"/>
+    <path ${trait} d="M3 23h9l3-6 5 11 3-7 2 2h16"/>`,
+});
+
 /** Pictogrammes propres à un chapitre. Les autres chapitres prennent celui de leur thème. */
 const PICTOS_CHAP = {
+  // ------------------------------------------------------------ SVT 3ᵉ
+  // L'origine des caractères : la double hélice d'ADN
+  s03: `<circle ${plein} cx="22" cy="22" r="10"/>
+    <path ${trait} d="M13 4c0 12 18 12 18 18s-18 6-18 18M31 4c0 12-18 12-18 18s18 6 18 18M16 9h12M16 35h12M19 22h6"/>`,
   // ---------------------------------------------- Physique-chimie 5ᵉ
   // États de la matière : un cube, une goutte, des particules de gaz
   pv01: `<rect ${plein} x="4" y="24" width="14" height="14" rx="2"/><rect ${trait} x="4" y="24" width="14" height="14" rx="2"/>
@@ -431,3 +452,15 @@ export const ILLU_PHYSIQUE = `
   <g class="illu-orbite-g illu-o3"><ellipse class="illu-orbite" cx="110" cy="110" rx="96" ry="34" transform="rotate(-60 110 110)"/><circle class="illu-e" cx="62" cy="27" r="7"/></g>
   <circle class="illu-noyau" cx="104" cy="106" r="9"/><circle class="illu-noyau illu-noyau-b" cx="116" cy="106" r="9"/><circle class="illu-noyau" cx="110" cy="116" r="9"/>
 </svg>`;
+
+/** Illustration animée de l'accueil de SVT : une double hélice d'ADN qui tourne sur elle-même. */
+export const ILLU_SVT = `
+<svg class="illu illu-adn" viewBox="0 0 220 220" aria-hidden="true">${Array.from({ length: 12 }, (_, k) => {
+  const y = 22 + k * 16, c = Math.round(Math.cos((k * Math.PI) / 5.5) * 100) / 100;
+  // La position au repos (transform) sert d'image fixe quand les animations sont coupées.
+  return `<g class="illu-barreau" style="transform:scaleX(${c});animation-delay:${(-((k / 11) % 1) * 3.6).toFixed(2)}s"><line x1="60" y1="${y}" x2="160" y2="${y}"/><circle class="illu-b1" cx="60" cy="${y}" r="6.5"/><circle class="illu-b2" cx="160" cy="${y}" r="6.5"/></g>`;
+}).join('')}
+</svg>`;
+
+/** Illustration de l'accueil de chaque matière. */
+export const ILLUS = { maths: ILLU_MATHS, physique: ILLU_PHYSIQUE, svt: ILLU_SVT };

@@ -42,7 +42,7 @@ export default {
     },
     {
       type: 'propriete', titre: "Un litre d'eau pèse un kilogramme",
-      contenu: "Pour l'eau : $1$ L a une masse de $1$ kg, et $1$ mL a une masse de $1$ g. Attention, masse et volume sont deux grandeurs <strong>différentes</strong> : un litre d'huile ne pèse que $0{,}92$ kg, un litre de miel $1{,}4$ kg.",
+      contenu: "Pour l'eau : $1$ L a une masse de $1$ kg, et $1$ mL a une masse de $1$ g. Attention, masse et volume sont deux grandeurs <strong>différentes</strong> : un litre d'huile ne pèse que $0{,}92$ kg, un litre de mercure $13{,}5$ kg.",
       formule: '1 \\text{ L d\'eau} \\leftrightarrow 1 \\text{ kg}',
     },
     {

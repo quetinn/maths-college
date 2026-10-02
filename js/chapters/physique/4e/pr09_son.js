@@ -10,7 +10,7 @@ import { ondeSonore } from '../figures.js';
 import { courseDuSon, echelleDecibels } from '../figures_cycle.js';
 import { tableau } from '../../commun.js';
 
-const VITESSES = [['air', 340], ['eau', 1500], ['acier', 5000]];
+const VITESSES = [['air', 340], ['eau', 1500], ['fer', 6000]];
 const t = (x) => dec(x).replace(',', '{,}');
 
 const FREQUENCES = [
@@ -19,7 +19,7 @@ const FREQUENCES = [
 ];
 const DOMAINES = ['un infrason', 'un son audible', 'un ultrason'];
 
-const NIVEAUX = [['une conversation', 60, false], ['un chuchotement', 30, false], ['un concert', 105, true], ['une tondeuse à gazon', 90, true], ['une bibliothèque', 40, false], ['un marteau-piqueur', 110, true], ['une rue calme', 50, false]];
+const NIVEAUX = [['une conversation', 60, false], ['une nuit dans une chambre calme', 30, false], ['un concert amplifié', 102, true], ['un passage près d\'un marteau-piqueur', 100, true], ['une séance de lecture en bibliothèque', 45, false], ['un ménage à l\'aspirateur', 70, false], ['une circulation dense', 80, false]];
 
 export default {
   id: 'pr09',
@@ -55,7 +55,7 @@ export default {
   ],
 
   methode: [
-    { etape: 1, titre: 'Identifier le milieu', explication: 'Air : 340 m/s. Eau : 1 500 m/s. Acier : 5 000 m/s. Vide : pas de son.' },
+    { etape: 1, titre: 'Identifier le milieu', explication: 'Air : 340 m/s. Eau : 1 500 m/s. Fer : près de 6 000 m/s. Vide : pas de son.' },
     { etape: 2, titre: 'Calculer', explication: '$d = v \\times t$ ou $t = d \\div v$, en mètres et en secondes.' },
     { etape: 3, titre: 'Lire une fréquence', explication: 'Entre 20 Hz et 20 000 Hz : audible. Grande fréquence : son aigu.' },
     { etape: 4, titre: 'Évaluer le risque', explication: 'Au-delà de 85 dB : se protéger.' },
@@ -95,7 +95,7 @@ export default {
       generer() {
         const [milieu, v] = pick(VITESSES), s = pick([2, 3, 4, 0.5, 5]);
         return {
-          enonce: `Dans ${milieu === 'air' ? "l'air" : milieu === 'eau' ? "l'eau" : "l'acier"}, le son se propage à ${v} m/s. Quelle distance parcourt-il en ${dec(s)} s ?`,
+          enonce: `Dans ${milieu === 'air' ? "l'air" : milieu === 'eau' ? "l'eau" : 'le fer'}, le son se propage à ${v} m/s. Quelle distance parcourt-il en ${dec(s)} s ?`,
           ...grandeur(v * s, 'm', { pieges: [{ valeur: arrondi(v / s, 3), message: 'd = v × t : on multiplie.' }] }),
           _v: { v, s },
         };
@@ -106,7 +106,7 @@ export default {
     {
       id: 'e05', niveau: 2, type: 'saisie', consigne: 'Calcule la durée :',
       generer() {
-        const [quoi, d, v, milieu] = pick([['Le coup de sifflet de l\'arbitre', 170, 340, "l'air"], ['Le bruit d\'un feu d\'artifice', 1020, 340, "l'air"], ["Le chant d'une baleine", 4500, 1500, "l'eau"], ['Un choc sur un rail', 2500, 5000, "l'acier"], ['Un cri dans la montagne', 680, 340, "l'air"]]);
+        const [quoi, d, v, milieu] = pick([['Le coup de sifflet de l\'arbitre', 170, 340, "l'air"], ['Le bruit d\'un feu d\'artifice', 1020, 340, "l'air"], ["Le chant d'une baleine", 4500, 1500, "l'eau"], ['Un choc sur un rail', 3000, 6000, 'le fer'], ['Un cri dans la montagne', 680, 340, "l'air"]]);
         const s = d / v;
         return {
           enonce: `${quoi} parcourt ${d} m dans ${milieu} (${v} m/s). Combien de temps met le son ?`,
@@ -129,10 +129,10 @@ export default {
     {
       id: 'e07', niveau: 3, type: 'qcm', consigne: "L'oreille collée au rail :",
       generer() {
-        return { enonce: "Un cheminot tape sur un rail en acier. Un collègue, à 1 km, a l'oreille collée au rail. Il entend deux fois le coup. Lequel arrive en premier ?", choix: ['le son passé par le rail', "le son passé par l'air", 'les deux arrivent en même temps'], correct: 0, ordre_fixe: true, _v: {} };
+        return { enonce: "Un cheminot tape sur un rail en fer. Un collègue, à 1 km, a l'oreille collée au rail. Il entend deux fois le coup. Lequel arrive en premier ?", choix: ['le son passé par le rail', "le son passé par l'air", 'les deux arrivent en même temps'], correct: 0, ordre_fixe: true, _v: {} };
       },
-      indices: ['Compare les vitesses dans l\'acier et dans l\'air.', '5 000 m/s contre 340 m/s.', 'Le son le plus rapide arrive le premier.'],
-      correction_etapes: () => ['Dans l\'acier : $1\\,000 \\div 5\\,000 = 0{,}2$ s. Dans l\'air : $1\\,000 \\div 340 \\approx 2{,}9$ s.', 'Le son passé par <strong>le rail</strong> arrive bien avant.'],
+      indices: ['Compare les vitesses dans le fer et dans l\'air.', 'Près de 6 000 m/s contre 340 m/s.', 'Le son le plus rapide arrive le premier.'],
+      correction_etapes: () => ['Dans le fer : $1\\,000 \\div 6\\,000 \\approx 0{,}17$ s. Dans l\'air : $1\\,000 \\div 340 \\approx 2{,}9$ s.', 'Le son passé par <strong>le rail</strong> arrive bien avant.'],
     },
     {
       id: 'e08', niveau: 3, type: 'saisie', consigne: "L'orage :",

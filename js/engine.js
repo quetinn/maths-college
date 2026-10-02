@@ -359,6 +359,39 @@ export function prepareChoices(state) {
   return Object.assign({}, state, { choix: items.map((it) => it.c), correct: correct >= 0 ? correct : items.findIndex((it) => it.c === good) });
 }
 
+const melange = (arr) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+};
+
+/**
+ * Prépare un exercice « associer » ou « légender » : une liste de lignes
+ * { texte, reponse } et la liste des réponses proposées.
+ *  - associer : `elements: [{ texte, reponse }]`, `options` facultatif
+ *    (catégories dans l'ordre voulu ; sinon les réponses, mélangées) ;
+ *  - légender : `legendes: ['noyau', …]` — la légende du repère 1, 2, 3… de la
+ *    figure (`visuel`) — et `leurres` facultatifs.
+ * Renvoie une copie de l'état avec `elements` et `options` prêts à afficher.
+ */
+export function preparerAssociation(type, state) {
+  if (type === 'legender') {
+    const elements = (state.legendes || []).map((l, i) => ({ texte: `<span class="repere-num">${i + 1}</span>`, reponse: l }));
+    return Object.assign({}, state, { elements, options: melange([...new Set([...(state.legendes || []), ...(state.leurres || [])])]) });
+  }
+  const elements = state.ordre_fixe ? [...(state.elements || [])] : melange(state.elements || []);
+  const options = state.options ? [...state.options] : melange([...new Set(elements.map((e) => e.reponse))]);
+  return Object.assign({}, state, { elements, options });
+}
+
+/** Prépare un exercice « document » : mélange les choix de chaque question. */
+export function preparerDocument(state) {
+  return Object.assign({}, state, { questions: (state.questions || []).map((q) => prepareChoices(q)) });
+}
+
+/** Vrai si les réponses proposées tiennent en boutons côte à côte (sinon : liste déroulante). */
+const optionsCourtes = (options) => options.length <= 3 && options.every((o) => String(o).replace(/<[^>]+>/g, '').length <= 24);
+
 /**
  * Découpe l'énoncé d'un exercice « complète le calcul » en morceaux :
  * [texte, n°, texte, n°, …, texte]. Seuls les {n} placés HORS des formules
@@ -501,6 +534,9 @@ function buildSpeechText(exercice, state) {
   else if (exercice.type === 'complete') parts.push(texToSpeech(decouperTrous(state.enonce_complete || state.enonce).map((p, i) => (i % 2 ? ' (à compléter) ' : p)).join('')));
   else if (exercice.type === 'ordonner_etapes') parts.push('Remets ces étapes dans l\'ordre : ' + (state.etapes || []).map(texToSpeech).join(' ; '));
   else if (state.enonce) parts.push(texToSpeech(state.enonce));
+  if (exercice.type === 'associer') parts.push('À associer : ' + (state.elements || []).map((e) => texToSpeech(e.texte)).join(' ; ') + '. Réponses possibles : ' + (state.options || []).map(texToSpeech).join(' ; '));
+  if (exercice.type === 'legender') parts.push('Légendes possibles : ' + (state.options || []).map(texToSpeech).join(' ; '));
+  if (exercice.type === 'document') (state.questions || []).forEach((q, i) => parts.push(`Question ${i + 1} : ${texToSpeech(q.question)}` + (q.choix ? '. Réponses possibles : ' + q.choix.map(texToSpeech).join(' ; ') : '')));
   if (state.choix) parts.push('Réponses possibles : ' + state.choix.map((c) => texToSpeech('$' + c + '$')).join(' ; '));
   return parts.join('. ').replace(/\s+/g, ' ').trim();
 }
@@ -536,6 +572,27 @@ export function mountExercise(container, exercice, hooks = {}) {
           <button class="btn btn-choice" data-vf="vrai">Vrai</button>
           <button class="btn btn-choice" data-vf="faux">Faux</button></div>`;
     }
+    if (type === 'associer' || type === 'legender') {
+      const boutons = optionsCourtes(state.options);
+      return `<ul class="assoc ${type === 'legender' ? 'assoc-legende' : ''}" data-assoc>` + state.elements.map((e, i) => `
+        <li class="assoc-ligne" data-ligne="${i}">
+          <span class="assoc-texte">${e.texte}</span>
+          ${boutons
+            ? `<span class="assoc-choix" role="group">${state.options.map((o, k) => `<button type="button" class="assoc-opt" data-opt="${k}" aria-pressed="false">${o}</button>`).join('')}</span>`
+            : `<select class="assoc-select" aria-label="${type === 'legender' ? `Légende du repère ${i + 1}` : 'Réponse'}"><option value="">Choisir…</option>${state.options.map((o, k) => `<option value="${k}">${String(o).replace(/<[^>]+>/g, '')}</option>`).join('')}</select>`}
+        </li>`).join('') + `</ul>
+        <div class="answer-row"><button class="btn btn-primary" data-act="check">Vérifier</button></div>`;
+    }
+    if (type === 'document') {
+      return `<ol class="doc-questions" data-doc>` + state.questions.map((q, i) => `
+        <li class="doc-q" data-q="${i}">
+          <p class="doc-question">${q.question}</p>
+          ${q.choix
+            ? `<div class="doc-choix" role="group">${q.choix.map((c, k) => `<button type="button" class="assoc-opt" data-opt="${k}" aria-pressed="false">${renderChoiceHTML(c)}</button>`).join('')}</div>`
+            : `<input type="text" class="answer-input doc-input" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${q.validation === 'grandeur' ? 'Valeur et unité…' : 'Ta réponse…'}" aria-label="Réponse à la question ${i + 1}">`}
+        </li>`).join('') + `</ol>
+        <div class="answer-row"><button class="btn btn-primary" data-act="check">Vérifier</button></div>`;
+    }
     if (type === 'qcm' || state.choix) {
       return `<div class="qcm-group" role="radiogroup">` +
         state.choix.map((c, i) => `<button class="btn btn-choice" data-choice="${i}">${renderChoiceHTML(c)}</button>`).join('') + `</div>`;
@@ -565,7 +622,9 @@ export function mountExercise(container, exercice, hooks = {}) {
   }
 
   function render() {
-    state = prepareChoices(exercice.generer());
+    state = exercice.generer();
+    state = type === 'associer' || type === 'legender' ? preparerAssociation(type, state)
+      : type === 'document' ? preparerDocument(state) : prepareChoices(state);
     hintsShown = 0; attempts = 0; solved = false; correctionStep = 0; lastInput = null;
     order = null;
 
@@ -645,7 +704,7 @@ export function mountExercise(container, exercice, hooks = {}) {
       } else {
         fb.className = 'ex-feedback is-err'; fb.innerHTML = `${FB_KO} ${message || pick(ENCOURAGE_RETRY)}`;
         // La zone de réponse fait « non » de la tête
-        rejouer(wrap.querySelector('.answer-row, .complete-zone, .qcm-group, .vf-group, .ordonner'), 'secoue');
+        rejouer(wrap.querySelector('.assoc, .doc-questions, .answer-row, .complete-zone, .qcm-group, .vf-group, .ordonner'), 'secoue');
       }
       rejouer(fb, 'apparait');
     };
@@ -664,7 +723,40 @@ export function mountExercise(container, exercice, hooks = {}) {
 
     const checkBtn = wrap.querySelector('[data-act="check"]');
 
-    if (type === 'ordonner_etapes') {
+    // Lignes à réponses multiples (associer, légender, document) : un bouton par
+    // réponse proposée, ou une liste déroulante. Après vérification, chaque ligne
+    // est marquée juste ou fausse.
+    const lierLignes = (selecteur, estJuste) => {
+      const lignes = [...wrap.querySelectorAll(selecteur)];
+      const choisi = lignes.map(() => null);
+      lignes.forEach((li, i) => {
+        const nettoyer = () => li.classList.remove('est-juste', 'est-faux');
+        li.querySelectorAll('[data-opt]').forEach((b) => b.addEventListener('click', () => {
+          li.querySelectorAll('[data-opt]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          choisi[i] = +b.dataset.opt; nettoyer();
+        }));
+        const sel = li.querySelector('select');
+        if (sel) sel.addEventListener('change', () => { choisi[i] = sel.value === '' ? null : +sel.value; nettoyer(); });
+        const inp = li.querySelector('input');
+        if (inp) inp.addEventListener('input', () => { choisi[i] = inp.value.trim() === '' ? null : inp.value; nettoyer(); });
+      });
+      checkBtn.addEventListener('click', () => {
+        if (choisi.some((c) => c == null)) {
+          fb.className = 'ex-feedback is-err'; fb.innerHTML = `${FB_KO} Il reste ${type === 'document' ? 'une question' : 'une ligne'} sans réponse.`;
+          rejouer(fb, 'apparait'); return;
+        }
+        const justes = lignes.map((li, i) => estJuste(i, choisi[i]));
+        lignes.forEach((li, i) => { li.classList.toggle('est-juste', justes[i]); li.classList.toggle('est-faux', !justes[i]); });
+        const n = justes.filter(Boolean).length;
+        onResult(n === lignes.length, `${n} sur ${lignes.length} : reprends ${lignes.length - n > 1 ? 'les lignes marquées' : 'la ligne marquée'}.`);
+      });
+    };
+
+    if (type === 'associer' || type === 'legender') {
+      lierLignes('[data-ligne]', (i, k) => state.options[k] === state.elements[i].reponse);
+    } else if (type === 'document') {
+      lierLignes('[data-q]', (i, v) => { const q = state.questions[i]; return q.choix ? v === q.correct : checkAnswer(v, q); });
+    } else if (type === 'ordonner_etapes') {
       checkBtn.addEventListener('click', () => onResult(order.every((v, i) => v === i)));
     } else if (type === 'complete') {
       const inputs = [...wrap.querySelectorAll('.complete-input')];
@@ -738,6 +830,15 @@ export function mountExercise(container, exercice, hooks = {}) {
   }
   function appendReponse(sol) {
     if (type === 'qcm' || type === 'vrai_faux' || type === 'ordonner_etapes') return;
+    if (type === 'associer' || type === 'legender' || type === 'document') {
+      const lignes = type === 'document'
+        ? state.questions.map((q, i) => `Question ${i + 1} : <strong>${q.choix ? renderChoiceHTML(q.choix[q.correct]) : `${String(q.reponse).replace('.', ',')}${q.unite ? ' ' + q.unite : ''}`}</strong>`)
+        : state.elements.map((e) => `${e.texte} <strong>${e.reponse}</strong>`);
+      const ul = document.createElement('ul'); ul.className = 'sol-answer sol-liste';
+      ul.innerHTML = lignes.map((l) => `<li>${l}</li>`).join('');
+      sol.appendChild(ul); renderMath(ul);
+      return;
+    }
     let rep = '';
     // Nombres affichés à la française (1,75 et non 1.75), sans erreur d'arrondi (0,30000000004).
     const nombre = (x) => (typeof x === 'number' ? String(Math.round(x * 1e6) / 1e6).replace('.', ',') : x);

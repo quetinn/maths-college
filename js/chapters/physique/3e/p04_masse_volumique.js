@@ -44,6 +44,10 @@ export default {
       type: 'propriete', titre: 'Flotter ou couler',
       contenu: "Un objet <strong>flotte</strong> sur un liquide si sa masse volumique est <strong>plus petite</strong> que celle du liquide ; sinon il coule. Deux liquides qui ne se mélangent pas se superposent : le moins dense au-dessus (l'huile flotte sur l'eau).",
     },
+    {
+      type: 'propriete', titre: 'La masse volumique dépend de la température',
+      contenu: "Quand on chauffe un liquide, sa masse ne change pas mais son volume augmente un peu : il se <strong>dilate</strong>, et sa masse volumique diminue. C'est le principe du thermomètre à liquide. C'est aussi l'une des causes de la montée du niveau des mers : l'eau des océans, en se réchauffant, occupe plus de place (environ un tiers de la hausse actuelle) ; la fonte des glaces posées sur les continents en explique environ la moitié.",
+    },
     { type: 'figure', titre: 'Flotte ou coule ?', contenu: "Change l'objet ou le liquide, puis observe.", render: (host) => flotteCoule(host) },
     { type: 'definition', titre: 'Quelques valeurs (g/cm³)', contenu: tableau([['Matériau', ...RHO.slice(0, 6).map((r) => r[0])], ['ρ', ...RHO.slice(0, 6).map((r) => dec(r[1]))]]) + tableau([['Matériau', ...RHO.slice(6).map((r) => r[0])], ['ρ', ...RHO.slice(6).map((r) => dec(r[1]))]]) },
     {
@@ -86,7 +90,7 @@ export default {
     {
       id: 'e03', niveau: 2, type: 'saisie', consigne: 'Calcule la masse (en kg) :',
       generer() {
-        const [nom, r] = pick([["huile d'olive", 0.92], ['eau de mer', 1.03], ['lait', 1.03], ['éthanol', 0.79], ['miel', 1.4]]), V = pick([1.5, 2, 5, 10, 20]);
+        const [nom, r] = pick([["huile d'olive", 0.92], ['eau de mer', 1.03], ['lait', 1.03], ['éthanol', 0.79], ['glycérine', 1.26]]), V = pick([1.5, 2, 5, 10, 20]);
         return {
           enonce: `Quelle est la masse de ${dec(V)} L de ${nom} ? Sa masse volumique est ${dec(r)} kg/L.`,
           ...grandeur(arrondi(r * V, 3), 'kg', { tolerance: 0.01, pieges: [{ valeur: arrondi(V / r, 3), message: 'Tu as divisé : la masse s\'obtient en multipliant, m = ρ × V.' }] }),
@@ -128,6 +132,7 @@ export default {
           { enonce: "Un gros morceau de fer a une masse volumique plus grande qu'un petit morceau de fer.", reponse: false, _v: { e: 'Non : la masse volumique caractérise le matériau, pas la taille de l\'objet.' } },
           { enonce: 'Un glaçon flotte dans l\'eau car la glace est moins dense que l\'eau liquide.', reponse: true, _v: { e: 'Oui : 0,92 g/cm³ < 1 g/cm³.' } },
           { enonce: '1 mL correspond à 1 cm³.', reponse: true, _v: { e: 'Oui, ce sont deux écritures du même volume.' } },
+          { enonce: "Quand on chauffe de l'eau liquide, sa masse volumique augmente.", reponse: false, _v: { e: "Non : l'eau se dilate, son volume augmente pour la même masse, donc sa masse volumique diminue." } },
           { enonce: "L'huile coule au fond de l'eau.", reponse: false, _v: { e: "Non : l'huile, moins dense (0,92 g/cm³), reste au-dessus." } },
           { enonce: 'La masse volumique de l\'eau vaut 1 000 kg/m³.', reponse: true, _v: { e: 'Oui : 1 g/cm³ = 1 000 kg/m³.' } },
         ]);
@@ -151,11 +156,11 @@ export default {
     {
       id: 'e08', niveau: 3, type: 'qcm', consigne: 'Liquides superposés :',
       generer() {
-        const liquides = melanger([['huile', 0.92], ['eau', 1], ['sirop de sucre', 1.3], ['éthanol coloré', 0.79], ['glycérine', 1.26]]).slice(0, 3);
+        const liquides = melanger([["huile d'olive", 0.92], ['eau', 1], ['mercure', 13.5], ['essence', 0.75]]).slice(0, 3);
         const ordre = [...liquides].sort((x, y) => x[1] - y[1]).map((x) => x[0]);
         const texte = (o) => o.join(' au-dessus de ');
         const choix = [texte(ordre), texte([...ordre].reverse()), texte([ordre[1], ordre[0], ordre[2]]), texte([ordre[0], ordre[2], ordre[1]])];
-        return { enonce: `On verse dans une éprouvette trois liquides qui ne se mélangent pas : ${liquides.map(([n, r]) => `${n} (${dec(r)} g/cm³)`).join(', ')}. Comment se rangent-ils, de haut en bas ?`, choix, correct: 0, _v: { ordre } };
+        return { enonce: `On verse dans une éprouvette trois liquides (on admet qu'ils ne se mélangent pas) : ${liquides.map(([n, r]) => `${n} (${dec(r)} g/cm³)`).join(', ')}. Comment se rangent-ils, de haut en bas ?`, choix, correct: 0, _v: { ordre } };
       },
       indices: ['Le liquide le moins dense monte au-dessus.', 'Range les masses volumiques par ordre croissant.', 'Le plus dense est au fond.'],
       correction_etapes: (st) => [`Du moins dense au plus dense : ${st._v.ordre.join(', ')}.`, `De haut en bas : <strong>${st._v.ordre.join(', ')}</strong>.`],

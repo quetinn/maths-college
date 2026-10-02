@@ -66,6 +66,10 @@ export default {
         ['dihydrogène', 'flamme', 'petite détonation (« pop »)'],
       ]),
     },
+    {
+      type: 'propriete', titre: 'Un exemple : la corrosion du fer',
+      contenu: "À l'air humide, le fer se couvre de <strong>rouille</strong>, une substance brun-rouge faite d'oxydes de fer. C'est une transformation chimique lente, la <strong>corrosion</strong> : le fer réagit avec le dioxygène, en présence d'eau. On protège le fer avec une peinture ou une couche de zinc (galvanisation).",
+    },
     { type: 'figure', titre: 'Une réaction sur une balance', contenu: 'Lance la réaction dans le flacon fermé par un ballon, puis dans le flacon ouvert : compare les masses.', render: (host) => balanceReaction(host) },
     {
       type: 'propriete', titre: 'La masse se conserve',

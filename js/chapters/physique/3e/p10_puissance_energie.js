@@ -8,7 +8,7 @@ import { randInt, pick, arrondi, dec, grandeur, tolRel } from '../outils.js';
 import { compteur } from '../figures.js';
 
 const t = (x, n = 3) => dec(arrondi(x, n)).replace(',', '{,}');
-const PRIX = 0.25; // € par kWh (ordre de grandeur, tarif réglementé 2026)
+const PRIX = 0.2; // € par kWh : tarif réglementé, option base, août 2026 (0,2001 €), arrondi
 
 export default {
   id: 'p10',
@@ -99,10 +99,10 @@ export default {
       generer() {
         const [nom, P] = pick([['un four', 2500], ['un radiateur', 2000], ['une console de jeux', 200], ['une télévision', 100], ['un sèche-linge', 3000]]), h = pick([2, 3, 4, 5, 10, 20]);
         const E = (P / 1000) * h, cout = arrondi(E * PRIX, 2);
-        return { enonce: `${nom[0].toUpperCase() + nom.slice(1)} de ${P} W fonctionne ${h} h. Le kWh coûte ${dec(PRIX)} €. Combien coûte cette utilisation ? (en €, au centime)`, reponse: cout, validation: 'nombre', tolerance: 0.011, pieges: [{ valeur: arrondi(P * h * PRIX, 2), message: 'Calcule d\'abord l\'énergie en kWh (P en kW), puis multiplie par le prix.' }], _v: { P, h, E, cout } };
+        return { enonce: `${nom[0].toUpperCase() + nom.slice(1)} de ${P} W fonctionne ${h} h. Le kWh coûte 0,20 €. Combien coûte cette utilisation ? (en €, au centime)`, reponse: cout, validation: 'nombre', tolerance: 0.011, pieges: [{ valeur: arrondi(P * h * PRIX, 2), message: 'Calcule d\'abord l\'énergie en kWh (P en kW), puis multiplie par le prix.' }], _v: { P, h, E, cout } };
       },
       indices: ['Calcule l\'énergie en kWh : $E = P \\times t$ avec P en kW.', 'Coût = E × prix du kWh.', 'Arrondis au centime.'],
-      correction_etapes: (st) => [`$E = ${t(st._v.P / 1000)} \\times ${st._v.h} = ${t(st._v.E)}$ kWh.`, `Coût : $${t(st._v.E)} \\times ${t(PRIX)} \\approx ${t(st._v.cout, 2)}$ €.`],
+      correction_etapes: (st) => [`$E = ${t(st._v.P / 1000)} \\times ${st._v.h} = ${t(st._v.E)}$ kWh.`, `Coût : $${t(st._v.E)} \\times 0{,}20 \\approx ${t(st._v.cout, 2)}$ €.`],
     },
     {
       id: 'e05', niveau: 2, type: 'saisie', consigne: "Énergie en joules :",

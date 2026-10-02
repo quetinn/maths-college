@@ -29,7 +29,7 @@ export default {
     },
     {
       type: 'propriete', titre: 'Vitesse du son',
-      contenu: "La vitesse du son dépend du milieu : " + tableau([['Milieu', 'air (20 °C)', 'eau', 'acier'], ['Vitesse', '340 m/s', '1 500 m/s', '5 000 m/s']]) + " Pour une distance $d$ parcourue en une durée $t$ :",
+      contenu: "La vitesse du son dépend du milieu : " + tableau([['Milieu', 'air (15 °C)', 'eau', 'fer'], ['Vitesse', '340 m/s', '1 500 m/s', 'près de 6 000 m/s']]) + " Pour une distance $d$ parcourue en une durée $t$ :",
       formule: 'd = v \\times t',
     },
     {
@@ -118,7 +118,7 @@ export default {
       generer() {
         return pick([
           { enonce: 'Sur la Lune (sans atmosphère), deux astronautes sans radio peuvent-ils s\'entendre parler ?', choix: ["non, le son ne se propage pas dans le vide", 'oui, mais moins fort', 'oui, normalement', 'oui, mais plus aigu'], correct: 0, _v: { e: "Il n'y a pas d'air pour transmettre la vibration. En collant leurs casques, ils s'entendraient à travers la matière !" } },
-          { enonce: 'Dans quel milieu le son est-il le plus rapide ?', choix: ["l'acier", "l'eau", "l'air", 'le vide'], correct: 0, _v: { e: 'Environ 5 000 m/s dans l\'acier, 1 500 m/s dans l\'eau, 340 m/s dans l\'air, et pas du tout dans le vide.' } },
+          { enonce: 'Dans quel milieu le son est-il le plus rapide ?', choix: ['le fer', "l'eau", "l'air", 'le vide'], correct: 0, _v: { e: 'Près de 6 000 m/s dans le fer, 1 500 m/s dans l\'eau, 340 m/s dans l\'air, et pas du tout dans le vide.' } },
           { enonce: 'La lumière du Soleil nous parvient à travers le vide spatial. Cela montre que la lumière :', choix: ['peut se propager dans le vide', 'a besoin d\'air', 'est un son', 'va moins vite que le son'], correct: 0, _v: { e: 'Contrairement au son, la lumière n\'a pas besoin de matière pour se propager.' } },
         ]);
       },

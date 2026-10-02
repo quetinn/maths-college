@@ -45,7 +45,7 @@ function executerVisuel(ou, f) {
 const imp = (rel) => import(pathToFileURL(path.join(racine, rel)).href);
 
 const { CHAPTERS } = await imp('js/programme.js');
-const { checkAnswer, prepareChoices, decouperTrous } = await imp('js/engine.js');
+const { checkAnswer, prepareChoices, decouperTrous, preparerAssociation } = await imp('js/engine.js');
 
 // Saisie « type » d'une réponse attendue : une grandeur s'écrit avec son unité.
 const saisieDe = (st) => (st.validation === 'grandeur' ? `${String(st.reponse).replace('.', ',')} ${st.unite}` : String(st.reponse));
@@ -72,6 +72,29 @@ function texVersSaisie(t) {
 function verifierEtat(ou, type, st, exo) {
   const affichage = [st.enonce, st.question, st.enonce_complete, st.consigne, st.explication, texte(st.etapes), texte(st.choix)].map(texte).join(' ');
   if (suspect(affichage)) problemes.push(`${ou} : texte suspect → ${affichage.slice(0, 160)}`);
+
+  if (type === 'associer' || type === 'legender') {
+    const p = preparerAssociation(type, st);
+    const tout = [...p.elements.map((e) => `${e.texte} ${e.reponse}`), ...p.options].join(' ');
+    if (suspect(tout)) problemes.push(`${ou} : texte suspect → ${tout.slice(0, 160)}`);
+    if (p.elements.length < (type === 'legender' ? 3 : 2)) problemes.push(`${ou} : pas assez de lignes à associer`);
+    if (p.options.length < 2) problemes.push(`${ou} : moins de 2 réponses proposées`);
+    if (new Set(p.options).size !== p.options.length) problemes.push(`${ou} : réponses proposées en double`);
+    p.elements.forEach((e) => { if (!p.options.includes(e.reponse)) problemes.push(`${ou} : réponse « ${e.reponse} » absente des propositions`); });
+    if (new Set(p.elements.map((e) => e.texte)).size !== p.elements.length) problemes.push(`${ou} : lignes en double`);
+    if (type === 'legender' && typeof st.visuel !== 'function') problemes.push(`${ou} : schéma à légender absent`);
+    if (type === 'legender' && new Set(st.legendes).size !== st.legendes.length) problemes.push(`${ou} : deux repères ont la même légende`);
+    return;
+  }
+  if (type === 'document') {
+    if (!Array.isArray(st.questions) || st.questions.length < 2) { problemes.push(`${ou} : document avec moins de 2 questions`); return; }
+    if (!st.enonce && typeof st.visuel !== 'function') problemes.push(`${ou} : document absent (ni énoncé ni figure)`);
+    st.questions.forEach((q, i) => {
+      if (!q.question) problemes.push(`${ou} : question ${i + 1} vide`);
+      verifierEtat(`${ou}/q${i + 1}`, q.choix ? 'qcm' : 'saisie', q, exo);
+    });
+    return;
+  }
 
   if (type === 'qcm' || Array.isArray(st.choix)) {
     const p = prepareChoices(st);
@@ -120,7 +143,7 @@ function verifierEtat(ou, type, st, exo) {
 /** Vrai si deux tirages successifs donnent des énoncés différents (exercice réellement paramétré). */
 function enonceVariable(exo) {
   const lire = () => {
-    try { const st = exo.generer(); return [st.enonce, st.question, st.enonce_complete, texte(st.choix)].map(texte).join('|'); }
+    try { const st = exo.generer(); return [st.enonce, st.question, st.enonce_complete, texte(st.choix), texte(st.legendes), JSON.stringify(st.elements || st.questions || '')].map(texte).join('|'); }
     catch (e) { return ''; }
   };
   const ref = lire();
@@ -200,7 +223,7 @@ for (const meta of CHAPTERS.filter((c) => c.module && (!filtre.length || filtre.
 // ------------------------------------------------ Problèmes de brevet (maths et sciences)
 let nbProblemes = 0;
 if (!filtre.length) {
-  for (const fichier of ['js/brevet.js', 'js/brevet_sciences.js']) {
+  for (const fichier of ['js/brevet.js', 'js/brevet_sciences.js', 'js/brevet_svt.js']) {
     const { PROBLEMES, genererProbleme } = await imp(fichier);
     for (const pb of PROBLEMES) {
       nbProblemes++;

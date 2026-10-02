@@ -136,14 +136,14 @@ export default {
     {
       id: 'e08', niveau: 2, type: 'saisie', consigne: 'La facture :',
       generer() {
-        const kwh = pick([40, 150, 200, 320, 500]), prix = 0.25;
+        const kwh = pick([40, 150, 200, 320, 500]), prix = 0.2;
         return {
-          enonce: `L'énergie électrique est facturée en kilowattheures (kWh). Un kWh coûte 0,25 €. Combien coûtent ${kwh} kWh ? (en €)`,
+          enonce: `L'énergie électrique est facturée en kilowattheures (kWh). On suppose qu'un kWh coûte 0,20 €. Combien coûtent ${kwh} kWh ? (en €)`,
           reponse: arrondi(kwh * prix, 2), validation: 'nombre', tolerance: 0.001, _v: { kwh },
         };
       },
       indices: ['C\'est une situation de proportionnalité.', 'Multiplie le nombre de kWh par le prix d\'un kWh.', 'Réponse en euros.'],
-      correction_etapes: (st) => [`$${st._v.kwh} \\times 0{,}25$.`, `$= ${dec(st._v.kwh * 0.25).replace(',', '{,}')}$ €.`],
+      correction_etapes: (st) => [`$${st._v.kwh} \\times 0{,}20$.`, `$= ${dec(st._v.kwh * 0.2).replace(',', '{,}')}$ €.`],
     },
     {
       id: 'e09', niveau: 1, type: 'vrai_faux', consigne: 'Vrai ou faux ?',

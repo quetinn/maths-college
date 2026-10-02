@@ -52,7 +52,7 @@ export default {
     { type: 'figure', titre: 'La bille dans la cuvette', contenu: "Observe les barres : Ep (position), Ec (cinétique) et Q (thermique). Active les frottements.", render: (host) => cuvetteEnergie(host) },
     {
       type: 'propriete', titre: "Distance d'arrêt d'un véhicule",
-      contenu: "Distance d'arrêt = distance de <strong>réaction</strong> (parcourue pendant le temps de réaction du conducteur, environ 1 s, à vitesse constante) + distance de <strong>freinage</strong> (pendant laquelle les freins dissipent l'énergie cinétique en chaleur). Comme $E_c$ dépend de $v^2$, la distance de freinage est multipliée par 4 quand la vitesse double. Elle augmente aussi sur route mouillée.",
+      contenu: "Distance d'arrêt = distance de <strong>réaction</strong> (parcourue pendant le temps de réaction du conducteur, environ 1 s, à vitesse constante) + distance de <strong>freinage</strong> (pendant laquelle les freins dissipent l'énergie cinétique en chaleur). Comme $E_c$ dépend de $v^2$, la distance de freinage est multipliée par 4 quand la vitesse double. Elle augmente aussi sur route mouillée. Les distances de freinage utilisées ici sont celles de la Sécurité routière (décélération de 7 m/s par seconde sur route sèche).",
       formule: 'd_A = d_R + d_F \\qquad d_R = v \\times t_R',
     },
     { type: 'figure', titre: "Simulateur de freinage", contenu: "Règle la vitesse et l'état de la route.", render: (host) => freinage(host) },
@@ -146,7 +146,7 @@ export default {
     {
       id: 'e07', niveau: 3, type: 'saisie', consigne: "Distance d'arrêt (en m) :",
       generer() {
-        const kmh = pick([50, 70, 90, 110, 130]), v = kmh / 3.6, dR = v, dF = Math.round((v * v) / 16), dA = dR + dF;
+        const kmh = pick([50, 70, 90, 110, 130]), v = kmh / 3.6, dR = v, dF = Math.round((v * v) / 14), dA = dR + dF;
         return {
           enonce: `Un conducteur roule à ${kmh} km/h (temps de réaction : 1 s). Sa distance de freinage est de ${dF} m. Calcule sa distance d'arrêt.` + tableau([['Vitesse', `${kmh} km/h`], ['Temps de réaction', '1 s'], ['Distance de freinage', `${dF} m`]]),
           ...grandeur(arrondi(dA, 1), 'm', { tolerance: 1, pieges: [{ valeur: kmh + dF, message: 'La distance de réaction se calcule avec la vitesse en m/s (÷ 3,6).' }] }),

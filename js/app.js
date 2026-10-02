@@ -15,7 +15,8 @@ import { NIVEAUX, THEMES, CHAPTERS, MATIERES, chapterById, themeById, niveauById
 import { ymd, maitrise, libelleMaitrise, erreursChapitre, chapitresFragiles, erreursParTheme, progressionNiveau, progressionTheme, resumePourTuteur, exosReussis, serieActuelle, aCommence } from './stats.js';
 import { creerSynchro, appeler, enLigneDisponible, Tuteur } from './cloud.js';
 import { fusionner } from './fusion.js';
-import { pictoChapitre, icone, VAGUE, ILLU_MATHS, ILLU_PHYSIQUE } from './icones.js';
+import { pictoChapitre, icone, VAGUE, ILLUS } from './icones.js';
+import { SOURCES, sourceChapitre } from './sources.js';
 
 export { NIVEAUX, THEMES, CHAPTERS }; // ré-export (outils de diagnostic)
 
@@ -266,7 +267,7 @@ function applySettings() {
   majCouleurBarre();
 }
 
-/** Matière affichée : couleur de l'interface (vert maths, bleu physique-chimie). */
+/** Matière affichée : couleur de l'interface (une couleur par matière, voir MATIERES). */
 function setMatiere(matiere) {
   document.documentElement.dataset.matiere = matiere;
   majCouleurBarre();
@@ -275,12 +276,14 @@ function majCouleurBarre() {
   const meta = document.querySelector('meta[name="theme-color"]');
   if (!meta) return;
   const sombre = document.documentElement.getAttribute('data-mode') === 'dark';
-  const physique = document.documentElement.dataset.matiere === 'physique';
-  meta.setAttribute('content', physique ? (sombre ? '#1a2690' : '#2238d6') : (sombre ? '#0b3d2e' : '#0f7b5a'));
+  meta.setAttribute('content', matiereById(document.documentElement.dataset.matiere).couleur[sombre ? 1 : 0]);
 }
 
 /** Lien vers l'accueil d'une matière à un niveau. */
-const lienAccueil = (matiere, niveau) => (matiere === 'physique' ? `#/physique/niveau/${niveau}` : `#/niveau/${niveau}`);
+const lienAccueil = (matiere, niveau) => (matiere === 'maths' ? `#/niveau/${niveau}` : `#/${matiere}/niveau/${niveau}`);
+/** Adresse d'accueil d'une matière autre que les maths : « #/svt » ou « #/svt/niveau/3e ». */
+const ROUTE_MATIERE = new RegExp(`^#/(${MATIERES.map((m) => m.id).filter((id) => id !== 'maths').join('|')})(?:/niveau/(5e|4e|3e))?`);
+const matiereCourante = () => matiereById(Store.data.settings.matiere);
 
 if (window.matchMedia) {
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
@@ -491,6 +494,7 @@ function afficherRoute() {
   if (hash.startsWith('#/revise')) return renderRevise();
   if (hash.startsWith('#/diagnostic')) return renderDiagnostic();
   if (hash.startsWith('#/fiche')) return renderFiche();
+  if (hash.startsWith('#/sources')) return renderSources();
   return renderHome();
 }
 
@@ -506,7 +510,8 @@ function router() {
   chapitreQuitte = quitte ? quitte[1] : null;
   // Changement de niveau sur l'accueil : le contenu glisse dans le sens 5ᵉ → 3ᵉ ou 3ᵉ → 5ᵉ.
   const rang = (h) => {
-    const n = h === '#/' || h === '' || h === '#/physique' ? Store.data.settings.niveau : (h.match(/^#\/(?:physique\/)?niveau\/(5e|4e|3e)/) || [])[1];
+    const mm = h.match(ROUTE_MATIERE);
+    const n = h === '#/' || h === '' || (mm && !mm[2]) ? Store.data.settings.niveau : mm ? mm[2] : (h.match(/^#\/niveau\/(5e|4e|3e)/) || [])[1];
     return n ? NIVEAUX.findIndex((x) => x.id === n) : -1;
   };
   const r1 = rang(avant), r2 = rang(_routeCourante);
@@ -558,15 +563,15 @@ function renderHome() {
   root.removeAttribute('data-theme');
   const s = Store.data.settings;
   const hash = location.hash || '';
-  const mp = hash.match(/^#\/physique(?:\/niveau\/(5e|4e|3e))?/);
+  const mp = hash.match(ROUTE_MATIERE);
   const m = hash.match(/^#\/niveau\/(5e|4e|3e)/);
-  const matiere = mp ? 'physique' : m ? 'maths' : (s.matiere || 'maths');
-  if (!s.niveau && !m && !(mp && mp[1])) { renderChoixNiveau(root); return; }
+  const matiere = mp ? mp[1] : m ? 'maths' : matiereCourante().id;
+  if (!s.niveau && !m && !(mp && mp[2])) { renderChoixNiveau(root); return; }
   if (s.matiere !== matiere) { s.matiere = matiere; Store.save(); }
   setMatiere(matiere);
 
   const mat = matiereById(matiere);
-  const niv = (mp && mp[1]) || (m && m[1]) || s.niveau;
+  const niv = (mp && mp[2]) || (m && m[1]) || s.niveau;
   const nivInfo = niveauById(niv);
   const redige = mat.niveaux.includes(niv);
   const g = Store.niveauProgress(niv, matiere);
@@ -589,10 +594,10 @@ function renderHome() {
     <div class="affiche-in">
       <nav class="pilules" aria-label="Matière">
         ${MATIERES.map((x) => `<a class="pilule ${x.id === matiere ? 'on' : ''}" href="${lienAccueil(x.id, niv)}" ${x.id === matiere ? 'aria-current="page"' : ''}>${x.label}</a>`).join('')}
-        <span class="pilule bientot" title="Bientôt disponible">SVT <small>bientôt</small></span>
+        <span class="pilule bientot" title="Bientôt disponible">Techno <small>bientôt</small></span>
       </nav>
-      ${matiere === 'physique' ? ILLU_PHYSIQUE : ILLU_MATHS}
-      <h1 class="affiche-titre ${matiere === 'physique' ? 'titre-long' : ''}"><small>${nivInfo.long}</small>${mat.label}</h1>
+      ${ILLUS[matiere] || ILLUS.maths}
+      <h1 class="affiche-titre ${mat.label.length > 8 ? 'titre-long' : ''}"><small>${nivInfo.long}</small>${mat.label}</h1>
       <nav class="niv-tabs" aria-label="Choisir le niveau">${tabs}</nav>
     </div>${VAGUE}`, 'affiche-accueil');
 
@@ -637,9 +642,10 @@ function renderHome() {
 
     <div class="duo">
       <a class="duo-item" href="#/revise"><b>Révision du jour</b><span>Les exercices qui coincent</span></a>
-      ${matiere === 'physique'
-        ? '<a class="duo-item" href="#/brevet"><b>Brevet de sciences</b><span>Problèmes de physique-chimie type brevet</span></a>'
-        : '<a class="duo-item" href="#/brevet"><b>Brevet blanc</b><span>Problèmes type brevet</span></a>'}
+      ${mat.brevet === 'sciences'
+        ? '<a class="duo-item" href="#/brevet"><b>Brevet de sciences</b><span>Physique-chimie et SVT, comme au brevet</span></a>'
+        : mat.brevet ? '<a class="duo-item" href="#/brevet"><b>Brevet blanc</b><span>Problèmes type brevet</span></a>'
+        : `<a class="duo-item" href="#/examen?niveau=${niv}"><b>Examen blanc</b><span>Questions tirées au hasard</span></a>`}
     </div>
 
     <section class="suivi" aria-label="Ma progression">
@@ -653,10 +659,10 @@ function renderHome() {
     </section>
 
     <nav class="raccourcis" aria-label="Outils">
-      ${raccourci('#/examen', 'examen', 'Examen blanc')}
+      ${mat.brevet ? raccourci(`#/examen?niveau=${niv}`, 'examen', 'Examen blanc') : ''}
       ${raccourci('#/formulaire', 'livre', 'Aide-mémoire')}
       ${raccourci('#/tableau', 'tableau', 'Tableau de bord')}
-      ${matiere === 'physique' ? '' : raccourci('#/fiche', 'fiche', 'Fiches (tuteur)')}
+      ${matiere === 'maths' ? raccourci('#/fiche', 'fiche', 'Fiches (tuteur)') : ''}
     </nav>
 
     ${enLigneDisponible() && !Sync.compte() ? `<p class="login-nudge"><a href="#/compte">Connecte-toi avec ton pseudo</a> pour sauvegarder ta progression en ligne.</p>` : ''}
@@ -874,6 +880,7 @@ function buildChapterPage(root, meta, chap) {
       <div class="exos-host"></div>
     </section>
     <section id="sec-quiz" class="chapter-section quiz-section revele"><h2>Quiz bilan</h2><p class="muted">5 questions pour valider le chapitre et décrocher ton badge (80 % requis).</p><div class="quiz-host"></div></section>
+    ${sourceChapitre(meta.id) ? `<p class="ch-source">${sourceChapitre(meta.id)} <a href="#/sources">Toutes les sources</a></p>` : ''}
   `;
   // Sommaire : défilement doux vers la section (sans passer par le routeur).
   root.querySelectorAll('.chapter-toc a').forEach((a) => a.addEventListener('click', (e) => {
@@ -1169,7 +1176,7 @@ async function renderFormulaire() {
   catch (e) { root.innerHTML = `<p class="notice">Erreur. <a href="#/">Retour</a></p>`; return; }
 
   // Formules de la matière consultée (maths par défaut).
-  const matiere = Store.data.settings.matiere || 'maths';
+  const matiere = matiereCourante().id;
   setMatiere(matiere);
   const blocks = data.filter((grp) => (grp.matiere || 'maths') === matiere).map((grp) => `
     <section class="form-theme" data-theme="${grp.theme}">
@@ -1177,18 +1184,40 @@ async function renderFormulaire() {
       ${grp.fiches.map((f) => `
         <div class="form-fiche">
           <h3>${f.titre}</h3>
-          ${f.formules.map((tex) => `<div class="form-formule">$$${tex}$$</div>`).join('')}
+          ${(f.formules || []).map((tex) => `<div class="form-formule">$$${tex}$$</div>`).join('')}
+          ${f.points ? `<ul class="form-points">${f.points.map((x) => `<li>${x}</li>`).join('')}</ul>` : ''}
         </div>`).join('')}
     </section>`).join('');
 
   root.innerHTML = `
     <button class="btn btn-ghost btn-back" data-back>← Accueil</button>
     <header class="dash-hero"><h1>Aide-mémoire</h1>
-      <p class="muted">${matiere === 'physique' ? 'Les formules et résultats de physique-chimie à connaître, par thème.' : 'Toutes les formules clés à connaître pour le brevet, rassemblées par thème.'}</p></header>
+      <p class="muted">${matiere === 'maths' ? 'Toutes les formules clés à connaître pour le brevet, rassemblées par thème.' : `L'essentiel de ${matiereById(matiere).nom} à connaître, par thème.`}</p></header>
     ${blocks}
   `;
   root.querySelector('[data-back]').addEventListener('click', () => navigate('#/'));
   renderMath(root);
+}
+
+// ---------------------------------------------------------------------
+//  Sources et crédits (js/sources.js)
+// ---------------------------------------------------------------------
+
+function renderSources() {
+  const root = app();
+  root.removeAttribute('data-theme');
+  const lien = ([titre, detail, url]) => `<li>${url ? `<a href="${url}" target="_blank" rel="noopener">${titre}</a>` : titre}<span>${detail}</span></li>`;
+  root.innerHTML = `
+    <button class="btn btn-ghost btn-back" data-back>← Accueil</button>
+    <header class="dash-hero"><h1>Sources et crédits</h1>
+      <p class="muted">D'où viennent les cours, les exercices et les chiffres de ce site.</p></header>
+    ${SOURCES.map((s) => `
+      <section class="form-theme sources-bloc">
+        <h2>${s.titre}</h2>
+        ${(s.texte || []).map((t) => `<p>${t}</p>`).join('')}
+        ${s.liens ? `<ul class="sources-liste">${s.liens.map(lien).join('')}</ul>` : ''}
+      </section>`).join('')}`;
+  root.querySelector('[data-back]').addEventListener('click', () => navigate('#/'));
 }
 
 // ---------------------------------------------------------------------
@@ -1232,6 +1261,9 @@ async function renderRevision(id) {
 // ---------------------------------------------------------------------
 
 function answerOf(exo, s) {
+  if (exo.type === 'legender') return (s.legendes || []).map((l, i) => `${i + 1} : ${l}`).join(' ; ');
+  if (exo.type === 'associer') return (s.elements || []).map((e) => `${e.texte} → ${e.reponse}`).join(' ; ');
+  if (exo.type === 'document') return (s.questions || []).map((q, i) => `${i + 1}) ${q.choix ? q.choix[q.correct] : q.reponse}`).join(' ; ');
   if (exo.type === 'qcm' || s.choix) return s.choix[s.correct];
   if (exo.type === 'vrai_faux') return s.reponse ? 'Vrai' : 'Faux';
   if (exo.type === 'ordonner_etapes') return s.etapes.join(' → ');
@@ -1241,6 +1273,8 @@ function answerOf(exo, s) {
 function enonceForPrint(exo, s) {
   if (exo.type === 'complete') return decouperTrous(s.enonce_complete || s.enonce).map((p, i) => (i % 2 ? ' ______ ' : p)).join('');
   if (exo.type === 'ordonner_etapes') return '<ul>' + s.etapes.map((e) => `<li>${e}</li>`).join('') + '</ul>';
+  if (exo.type === 'associer') return (s.enonce || '') + '<ul>' + s.elements.map((e) => `<li>${e.texte}</li>`).join('') + '</ul>';
+  if (exo.type === 'document') return (s.enonce || '') + '<ol>' + s.questions.map((q) => `<li>${q.question}</li>`).join('') + '</ol>';
   return s.enonce || '';
 }
 
@@ -1317,14 +1351,14 @@ async function renderExamen() {
   const params = new URLSearchParams((location.hash.split('?')[1]) || '');
   const scope = params.get('scope');
   const niv = niveauById(params.get('niveau')) ? params.get('niveau') : Store.niveau();
-  const matiere = Store.data.settings.matiere || 'maths';
+  const matiere = matiereCourante().id;
   const dispo = (c) => c.module && c.niveau === niv && c.matiere === matiere;
 
   if (!scope) {
     const themes = themesOf(matiere).filter((t) => chaptersOf(niv, t.id).some((c) => c.module));
     root.innerHTML = `
       <button class="btn btn-ghost btn-back" data-back>← Accueil</button>
-      <header class="dash-hero"><h1>Examen blanc${matiere === 'physique' ? ' de physique-chimie' : ''}</h1>
+      <header class="dash-hero"><h1>Examen blanc${matiere === 'maths' ? '' : ` de ${matiereById(matiere).nom}`}</h1>
         <p class="muted">Une série de questions tirées au hasard pour t'entraîner comme le jour J. Choisis un thème ou tout le programme.</p></header>
       <nav class="niv-tabs" aria-label="Niveau">${NIVEAUX.map((n) => `<a class="niv-tab ${n.id === niv ? 'active' : ''}" href="#/examen?niveau=${n.id}">${n.label}</a>`).join('')}</nav>
       <section class="chapter-section">
@@ -1494,35 +1528,58 @@ async function renderBrevet() {
 
   let mod;
   root.innerHTML = `<p class="loading">Préparation du brevet…</p>`;
-  const sciences = (Store.data.settings.matiere || 'maths') === 'physique';
-  try { mod = await import(sciences ? './brevet_sciences.js' : './brevet.js'); }
-  catch (e) { console.error(e); root.innerHTML = `<p class="notice">Erreur de chargement du brevet. <a href="#/">Retour</a></p>`; return; }
-  const { PROBLEMES, genererProbleme } = mod;
+  const mat = matiereCourante();
+  if (!mat.brevet) {
+    root.innerHTML = `
+      <button class="btn btn-ghost btn-back" data-back>← Accueil</button>
+      <section class="vide-matiere">
+        <h2>Brevet de ${mat.nom} : en préparation</h2>
+        <p>Les problèmes de ${mat.nom} type brevet arriveront avec les chapitres. En attendant, l'examen blanc tire des questions dans les chapitres déjà rédigés.</p>
+        <a class="btn btn-primary" href="#/examen">Examen blanc de ${mat.nom}</a>
+      </section>`;
+    root.querySelector('[data-back]').addEventListener('click', () => navigate('#/'));
+    return;
+  }
+  const sciences = mat.brevet === 'sciences';
+  // Épreuve de sciences : deux disciplines (physique-chimie et SVT), 25 points chacune.
+  // Chaque problème garde sa discipline et son générateur.
+  let PROBLEMES;
+  try {
+    const mods = sciences
+      ? [['Physique-chimie', 'physique', await import('./brevet_sciences.js')], ['SVT', 'svt', await import('./brevet_svt.js')]]
+      : [['Maths', 'maths', await import('./brevet.js')]];
+    PROBLEMES = mods.flatMap(([discipline, matiere, m]) => m.PROBLEMES.map((p) => ({ ...p, discipline, matiere, instance: () => Object.assign(m.genererProbleme(p), { discipline }) })));
+  } catch (e) { console.error(e); root.innerHTML = `<p class="notice">Erreur de chargement du brevet. <a href="#/">Retour</a></p>`; return; }
+  // Discipline de la matière affichée en premier.
+  const disciplines = [...new Set(PROBLEMES.map((p) => p.discipline))].sort((a, b) => (PROBLEMES.find((p) => p.discipline === b).matiere === mat.id) - (PROBLEMES.find((p) => p.discipline === a).matiere === mat.id));
 
   // — Accueil du brevet : choisir un sujet complet ou un problème ciblé —
   if (!sujet && !pbId) {
-    const cards = PROBLEMES.map((p) => `
+    const carte = (p) => `
       <button class="chapter-card carte-pb" data-pb="${p.id}">
         <span class="cc-domaine">${p.domaine}</span>
         <span class="cc-title">${p.titre}</span>
         <span class="cc-status">environ ${p.dureeMin} min</span>
-      </button>`).join('');
+      </button>`;
+    const cards = disciplines.map((d) => `
+      ${disciplines.length > 1 ? `<h3 class="brevet-discipline">${d}</h3>` : ''}
+      <div class="chapter-grid">${PROBLEMES.filter((p) => p.discipline === d).map(carte).join('')}</div>`).join('');
     root.innerHTML = `
       <button class="btn btn-ghost btn-back" data-back>← Accueil</button>
       <header class="dash-hero">
         <h1>${sciences ? 'Brevet de sciences' : 'Brevet blanc'}</h1>
         <p class="muted">${sciences
-          ? "Au brevet, l'épreuve de sciences dure une heure et porte sur deux disciplines ; la physique-chimie compte pour 25 points, en 30 minutes. Voici des problèmes du même type : une situation, des documents, des questions qui s'enchaînent."
+          ? "Au brevet, l'épreuve de sciences dure une heure et porte sur deux disciplines tirées parmi la physique-chimie, la SVT et la technologie : 25 points et 30 minutes chacune. Voici des problèmes du même type : une situation, des documents, des questions qui s'enchaînent."
           : "De vrais problèmes comme au Diplôme National du Brevet : une situation concrète, plusieurs questions qui s'enchaînent, un barème et un corrigé détaillé. Tu rédiges, puis tu corriges."}</p>
       </header>
       <section class="chapter-section">
         <h2>Sujet complet</h2>
-        <p class="muted">${sciences ? '2 problèmes tirés au hasard, chrono de 30 minutes à viser, note sur 25.' : '5 problèmes tirés au hasard sur tout le programme, avec chrono et note sur 20.'}</p>
+        <p class="muted">${sciences ? 'Physique-chimie puis SVT : deux problèmes par discipline, une heure à viser, 25 points par discipline, note sur 50.' : '5 problèmes tirés au hasard sur tout le programme, avec chrono et note sur 20.'}</p>
         <button class="btn btn-primary" data-sujet>Commencer un sujet complet</button>
       </section>
       <section class="chapter-section">
         <h2>S'entraîner problème par problème</h2>
-        <div class="chapter-grid">${cards}</div>
+        ${cards}
       </section>`;
     root.querySelector('[data-back]').addEventListener('click', () => navigate('#/'));
     root.querySelector('[data-sujet]').addEventListener('click', () => navigate('#/brevet?sujet=complet'));
@@ -1538,20 +1595,20 @@ async function renderBrevet() {
   } else {
     const shuffled = [...PROBLEMES];
     for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; }
-    chosen = shuffled.slice(0, Math.min(sciences ? 2 : 5, shuffled.length));
+    chosen = sciences ? disciplines.flatMap((d) => shuffled.filter((p) => p.discipline === d).slice(0, 2)) : shuffled.slice(0, 5);
   }
   if (!chosen.length) { root.innerHTML = `<p class="notice">Problème introuvable. <a href="#/brevet">Retour</a></p>`; return; }
 
-  const instances = chosen.map(genererProbleme);
+  const instances = chosen.map((p) => p.instance());
   const baremeGlobal = instances.reduce((s, p) => s + p.baremeTotal, 0);
   const isSujet = !pbId;
 
   root.innerHTML = `
     <button class="btn btn-ghost btn-back" data-back>← Quitter</button>
     <header class="brevet-hero">
-      <h1>${isSujet ? (sciences ? 'Brevet de sciences : physique-chimie' : 'Sujet de brevet blanc') : instances[0].titre}</h1>
+      <h1>${isSujet ? (sciences ? 'Brevet de sciences' : 'Sujet de brevet blanc') : instances[0].titre}</h1>
       <div class="brevet-hero-meta">
-        <span class="brevet-bareme">Barème : ${baremeGlobal} points</span>
+        <span class="brevet-bareme">${sciences && isSujet ? 'Barème : 50 points (25 par discipline)' : `Barème : ${baremeGlobal} points`}</span>
         ${isSujet ? '<span class="exam-timer" data-timer>00:00</span>' : ''}
       </div>
     </header>
@@ -1565,7 +1622,11 @@ async function renderBrevet() {
   root.querySelector('[data-back]').addEventListener('click', () => { if (examTimer) { clearInterval(examTimer); examTimer = null; } navigate('#/brevet'); });
 
   const host = root.querySelector('.brevet-host');
-  const controllers = instances.map((inst, i) => mountProbleme(host, inst, { index: isSujet ? i + 1 : 0 }));
+  const controllers = instances.map((inst, i) => {
+    // Sujet de sciences : un intertitre au début de chaque discipline.
+    if (sciences && isSujet && (i === 0 || instances[i - 1].discipline !== inst.discipline)) host.insertAdjacentHTML('beforeend', `<h2 class="brevet-partie">${inst.discipline} <small>25 points · 30 min</small></h2>`);
+    return mountProbleme(host, inst, { index: isSujet ? i + 1 : 0 });
+  });
 
   // Chrono (sujet complet uniquement)
   let sec = 0;
@@ -1578,9 +1639,18 @@ async function renderBrevet() {
   correctBtn.addEventListener('click', () => {
     if (examTimer) { clearInterval(examTimer); examTimer = null; }
     let score = 0;
-    controllers.forEach((c) => { score += c.grade().score; });
+    const parDiscipline = {}; // discipline → [points obtenus, barème]
+    controllers.forEach((c, i) => {
+      const s = c.grade().score, d = instances[i].discipline;
+      score += s;
+      parDiscipline[d] = parDiscipline[d] || [0, 0];
+      parDiscipline[d][0] += s; parDiscipline[d][1] += instances[i].baremeTotal;
+    });
+    // Sciences : chaque discipline est ramenée sur 25, le sujet sur 50.
+    const notes25 = Object.entries(parDiscipline).map(([d, [s, b]]) => [d, b ? Math.round((s / b) * 25 * 2) / 2 : 0]);
+    const note50 = notes25.reduce((t, x) => t + x[1], 0);
+    const fr = (x) => String(x).replace('.', ',');
     const note20 = baremeGlobal ? Math.round((score / baremeGlobal) * 20 * 10) / 10 : 0;
-    const note25 = baremeGlobal ? Math.round((score / baremeGlobal) * 25 * 2) / 2 : 0;
     const xpGain = score * 5 + (note20 >= 10 ? 40 : 0);
     Store.addXP(xpGain);
     if (isSujet && note20 >= 10) Store.markExamPassed();
@@ -1594,7 +1664,9 @@ async function renderBrevet() {
     bilan.innerHTML = `
       <div class="brevet-bilan-card">
         <h2>Bilan ${isSujet ? 'du sujet' : ''}</h2>
-        <p class="brevet-note"><strong>${score} / ${baremeGlobal}</strong> points — soit <strong>${sciences && isSujet ? `${String(note25).replace('.', ',')} / 25` : `${String(note20).replace('.', ',')} / 20`}</strong></p>
+        <p class="brevet-note">${sciences && isSujet
+          ? `<strong>${fr(note50)} / 50</strong> — ${notes25.map(([d, x]) => `${d} : <strong>${fr(x)} / 25</strong>`).join(' · ')}`
+          : `<strong>${score} / ${baremeGlobal}</strong> points — soit <strong>${fr(note20)} / 20</strong>`}</p>
         ${isSujet ? `<p class="muted">Temps : ${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')} · +${xpGain} XP</p>` : `<p class="muted">+${xpGain} XP</p>`}
         <p>${appreciation}</p>
         <div class="brevet-bilan-actions no-print">

@@ -118,7 +118,7 @@ export default {
     {
       id: 'e05', niveau: 2, type: 'saisie', consigne: 'Convertis en km/h :',
       generer() {
-        const [qui, ms] = pick([['Un guépard', 30], ['Usain Bolt (en pointe)', 12], ['Un TGV', 80], ['Une flèche', 50], ['Un escargot', 0.005]]);
+        const [qui, ms] = pick([['Un guépard', 30], ['Usain Bolt (en pointe)', 12], ['Un TGV', 80], ['Une flèche', 50], ['Un escargot', 0.001]]);
         return {
           enonce: `${qui} se déplace à ${dec(ms)} m/s. Exprime cette vitesse en km/h.`,
           ...grandeur(arrondi(ms * 3.6, 4), 'km/h', { uniteImposee: true, pieges: [{ valeur: arrondi(ms / 3.6, 4), message: 'Des m/s aux km/h, on MULTIPLIE par 3,6.' }] }),

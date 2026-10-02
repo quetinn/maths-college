@@ -106,4 +106,43 @@ export default [
       { titre: 'Écho et lumière', formules: ['d = \\dfrac{v \\times t}{2} \\ (\\text{aller-retour})', 'c \\approx 3 \\times 10^{8} \\text{ m/s}'] },
     ],
   },
+  // ---------------------------------------------------------------------- SVT
+  // En SVT, une fiche liste des `points` à retenir (phrases) plutôt que des formules.
+  {
+    theme: 'svt_terre', matiere: 'svt', titre: 'La planète Terre et l\'action humaine', icone: '🌍',
+    fiches: [
+      { titre: 'La Terre dans le système solaire', points: ['Huit planètes : quatre rocheuses près du Soleil, quatre géantes plus loin.', 'Rotation de la Terre en 24 heures : jour et nuit. Révolution en un an.', 'Axe incliné : les saisons.', 'Eau liquide et atmosphère : une planète habitable.'] },
+      { titre: 'Séismes, volcans et plaques', points: ['Foyer : en profondeur. Épicentre : en surface, à sa verticale.', 'Magnitude : énergie libérée. Intensité : dégâts observés.', 'Éruption effusive (lave fluide) ou explosive (lave visqueuse).', 'Les plaques s\'écartent (dorsale), se rapprochent (subduction) ou coulissent.', 'Risque = aléa et enjeux.'] },
+      { titre: 'Vents et zones climatiques', points: ['Anticyclone : hautes pressions, beau temps. Dépression : basses pressions, pluie.', 'Le vent va des hautes vers les basses pressions.', 'Zones chaude, tempérées et froides.'] },
+      { titre: 'Ressources et écosystèmes', points: ['Renouvelable : eau, bois, vent, Soleil. Non renouvelable : charbon, pétrole, gaz, minerais.', 'Chaîne alimentaire : producteur → consommateurs ; la flèche signifie « est mangé par ».', 'Un pesticide se concentre le long de la chaîne alimentaire.', 'Gestion durable : ne pas prélever plus que ce qui se renouvelle.'] },
+      { titre: 'Météo et climat', points: ['Météo : le temps qu\'il fait, sur quelques heures ou quelques jours.', 'Climat : moyenne sur au moins trente ans.', 'Climats du passé : connus grâce aux pollens fossiles et aux bulles d\'air des glaces.'] },
+      { titre: 'Effet de serre et réchauffement', points: ['Gaz à effet de serre : vapeur d\'eau, CO₂, méthane. Ils retiennent la chaleur émise par le sol.', 'Sans effet de serre : −18 °C. Avec : environ +15 °C.', 'Depuis 1850 : environ +1,1 °C, à cause de la combustion des énergies fossiles.', 'Atténuation : émettre moins. Adaptation : limiter les dégâts.'] },
+      { titre: 'Impacts sur la biodiversité', points: ['Biodiversité : diversité des écosystèmes, des espèces et des individus.', 'Le réchauffement déplace les espèces vers les pôles et les sommets.', 'Espèce exotique envahissante : introduite par l\'être humain, elle prolifère.', 'Océans : acidification (CO₂ dissous), surpêche, plastiques.'] },
+    ],
+  },
+  {
+    theme: 'svt_corps', matiere: 'svt', titre: 'Le corps humain et la santé', icone: '🫀',
+    fiches: [
+      { titre: 'Effort, sang et respiration', points: ['Le muscle consomme dioxygène et nutriments, rejette du dioxyde de carbone.', 'À l\'effort, le cœur et la respiration accélèrent.', 'Fréquence cardiaque maximale théorique : 220 − âge.', 'Artère : du cœur vers les organes. Veine : retour au cœur. Capillaire : échanges.'] },
+      { titre: 'Digestion et alimentation', points: ['Trajet : bouche, œsophage, estomac, intestin grêle, gros intestin.', 'Digestion : les enzymes découpent les aliments en nutriments.', 'Absorption : les nutriments passent dans le sang, dans l\'intestin grêle.', 'Énergie : 17 kJ par gramme de glucides ou de protides, 37 kJ par gramme de lipides.'] },
+      { titre: 'Reproduction humaine', points: ['Spermatozoïdes : produits en continu par les testicules. Ovule : un par cycle.', 'Cycle de 28 jours environ ; ovulation vers le 14ᵉ jour ; règles au début du cycle.', 'Fécondation dans la trompe, nidation dans l\'utérus, échanges par le placenta.', 'Préservatif : seule méthode qui protège aussi des infections sexuellement transmissibles.'] },
+      { titre: 'Système nerveux', points: ['Trajet : organe récepteur → nerf sensitif → centre nerveux → nerf moteur → muscle.', 'Neurone : corps cellulaire, dendrites, axone. Synapse : zone de contact entre deux neurones.', 'Alcool, drogues, bruit et manque de sommeil perturbent le système nerveux.'] },
+      { titre: 'Face à une infection', points: ['Contamination : entrée du microbe. Infection : sa multiplication.', 'Phagocytose : rapide, contre tous les microbes (adhésion, ingestion, digestion, rejet).', 'Antibiotiques : contre les bactéries seulement, jamais contre les virus.', 'Asepsie : éviter la contamination. Antisepsie : détruire les microbes présents.'] },
+      { titre: 'Réponse adaptative et vaccination', points: ['Lymphocytes B : fabriquent des anticorps, spécifiques d\'un antigène.', 'Lymphocytes T : détruisent les cellules infectées par un virus.', 'Cellules mémoire : second contact plus rapide et plus fort.', 'Vaccin : antigène inoffensif qui crée cette mémoire sans la maladie.'] },
+    ],
+  },
+  {
+    theme: 'svt_vivant', matiere: 'svt', titre: 'Le vivant et son évolution', icone: '🧬',
+    fiches: [
+      { titre: 'Nutrition des êtres vivants', points: ['Animal : aliments, eau, dioxygène ; rejette du dioxyde de carbone.', 'Végétal vert : eau, sels minéraux, dioxyde de carbone, lumière.', 'Photosynthèse : eau + dioxyde de carbone + lumière → glucides + dioxygène.', 'Sève brute : des racines aux feuilles. Sève élaborée : des feuilles aux autres organes.'] },
+      { titre: 'Reproduction et espèces', points: ['Fécondation interne ou externe ; ovipare ou vivipare.', 'Fleur : pollinisation, fécondation, puis graine et fruit.', 'Reproduction asexuée : un seul individu, des copies identiques.', 'Même espèce : descendants fertiles ; même nombre de chromosomes.'] },
+      { titre: 'Histoire de la vie', points: ['Fossile : reste ou trace d\'un être vivant du passé.', 'Crises il y a 252 et 66 millions d\'années.', 'Paléozoïque, Mésozoïque, Cénozoïque.'] },
+      { titre: 'Reproduction sexuée et diversité', points: ['Cellule reproductrice : 23 chromosomes, un de chaque paire, au hasard.', 'Fécondation : 23 + 23 = 46 chromosomes dans la cellule-œuf.', 'Mutation : modification de l\'ADN, au hasard, qui crée un nouvel allèle.'] },
+      { titre: 'Parenté et évolution', points: ['Caractère partagé = hérité d\'un ancêtre commun.', 'Sur un arbre, un nœud représente un ancêtre commun.', 'Sélection naturelle : les individus avantagés dans leur milieu laissent plus de descendants.', 'C\'est la population qui change, pas l\'individu.'] },
+      { titre: "De la cellule au gène", points: ['Le noyau de chaque cellule contient les <strong>chromosomes</strong> : 46 chez l\'être humain, soit 23 paires.', "Un chromosome est une très longue molécule d'<strong>ADN</strong>.", "Un <strong>gène</strong> est une portion d'ADN qui détermine un caractère héréditaire.", 'Les <strong>allèles</strong> sont les différentes versions d\'un gène. Chaque cellule en possède deux par gène.'] },
+      { titre: 'Caryotype', points: ['22 paires communes aux deux sexes + les chromosomes sexuels.', 'X et X : sexe féminin. X et Y : sexe masculin.', 'Trisomie 21 : trois chromosomes 21, soit 47 chromosomes.'] },
+      { titre: 'Groupes sanguins', points: ['Un gène, trois allèles : A, B et O.', "A et B s'expriment toujours ; O seulement s'il est en deux exemplaires.", 'A et A, A et O → groupe A · B et B, B et O → groupe B · A et B → groupe AB · O et O → groupe O.'] },
+      { titre: 'Phénotype', points: ["Phénotype = ensemble des caractères observables.", "Il dépend des gènes <strong>et</strong> de l'environnement (soleil, alimentation, sport…).", "Un caractère acquis au cours de la vie n'est pas héréditaire."] },
+    ],
+  },
 ];

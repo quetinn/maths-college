@@ -18,12 +18,22 @@ export const NIVEAUX = [
 ];
 
 /**
- * Matières. `niveaux` : niveaux déjà rédigés (les autres s'affichent « bientôt »).
- * Identifiants de physique-chimie : p (3ᵉ), pr (4ᵉ), pv (5ᵉ).
+ * Matières. Ajouter une matière = ajouter une ligne ici, ses thèmes, ses
+ * chapitres (dossier js/chapters/<dossier>) et sa couleur dans style.css
+ * ([data-matiere="<id>"]). Les maths gardent les adresses historiques
+ * (#/niveau/3e) ; les autres matières ont les leurs (#/svt/niveau/3e).
+ *  - `nom`     : le nom dans une phrase (« examen blanc de … ») ;
+ *  - `dossier` : sous-dossier de js/chapters/ ;
+ *  - `couleur` : barre du navigateur [mode clair, mode sombre] ;
+ *  - `niveaux` : niveaux déjà rédigés (les autres s'affichent « bientôt ») ;
+ *  - `brevet`  : épreuve proposée ('maths', 'sciences') ou null.
+ * Identifiants des chapitres : c/r/v (maths 3ᵉ/4ᵉ/5ᵉ), p/pr/pv (physique-chimie),
+ * s/sr/sv (SVT).
  */
 export const MATIERES = [
-  { id: 'maths',    label: 'Maths',           niveaux: ['5e', '4e', '3e'] },
-  { id: 'physique', label: 'Physique-chimie', niveaux: ['5e', '4e', '3e'] },
+  { id: 'maths',    label: 'Maths',           nom: 'maths',           dossier: '',          couleur: ['#0f7b5a', '#0b3d2e'], niveaux: ['5e', '4e', '3e'], brevet: 'maths' },
+  { id: 'physique', label: 'Physique-chimie', nom: 'physique-chimie', dossier: 'physique/', couleur: ['#2238d6', '#1a2690'], niveaux: ['5e', '4e', '3e'], brevet: 'sciences' },
+  { id: 'svt',      label: 'SVT',             nom: 'SVT',             dossier: 'svt/',      couleur: ['#b5432b', '#7d2a19'], niveaux: ['5e', '4e', '3e'], brevet: 'sciences' },
 ];
 
 export const THEMES = [
@@ -37,13 +47,17 @@ export const THEMES = [
   { id: 'pc_mouvement', matiere: 'physique', label: 'Mouvement et interactions',                     icone: '🚀' },
   { id: 'pc_energie',   matiere: 'physique', label: "L'énergie et ses conversions",                  icone: '⚡' },
   { id: 'pc_signaux',   matiere: 'physique', label: 'Des signaux pour observer et communiquer',      icone: '📡' },
+  // SVT : les trois thèmes du programme de cycle 4
+  { id: 'svt_terre',  matiere: 'svt', label: "La planète Terre, l'environnement et l'action humaine", icone: '🌍' },
+  { id: 'svt_vivant', matiere: 'svt', label: 'Le vivant et son évolution',                           icone: '🧬' },
+  { id: 'svt_corps',  matiere: 'svt', label: 'Le corps humain et la santé',                          icone: '🫀' },
 ];
 
 const matiereDuTheme = (theme) => (THEMES.find((t) => t.id === theme) || {}).matiere || 'maths';
 
 const ch = (niveau, id, titre, theme, icone, fichier) => ({
   id, niveau, titre, theme, icone, matiere: matiereDuTheme(theme),
-  module: fichier ? `./chapters/${matiereDuTheme(theme) === 'maths' ? '' : 'physique/'}${niveau}/${fichier}` : null,
+  module: fichier ? `./chapters/${MATIERES.find((m) => m.id === matiereDuTheme(theme)).dossier}${niveau}/${fichier}` : null,
 });
 
 export const CHAPTERS = [
@@ -71,6 +85,7 @@ export const CHAPTERS = [
   ch('4e', 'r02', 'Nombres relatifs', 'nombres_calculs', '➕', 'r02_nombres_relatifs.js'),
   ch('4e', 'r03', 'Opérations sur les fractions', 'nombres_calculs', '🍰', 'r03_fractions.js'),
   ch('4e', 'r08', 'Puissances', 'nombres_calculs', '²', 'r08_puissances.js'),
+  ch('4e', 'r18', 'Puissances de 10 et notation scientifique', 'nombres_calculs', '🔟', 'r18_notation_scientifique.js'),
   ch('4e', 'r06', 'Calcul littéral', 'nombres_calculs', '✖️', 'r06_calcul_litteral.js'),
   ch('4e', 'r07', 'Équations', 'nombres_calculs', '⚖️', 'r07_equations.js'),
   ch('4e', 'r15', 'Divisibilité et nombres premiers', 'nombres_calculs', '🧮', 'r15_nombres_premiers.js'),
@@ -116,6 +131,7 @@ export const CHAPTERS = [
   ch('5e', 'pv06', "Les sources d'énergie", 'pc_energie', '🔋', 'pv06_energie.js'),
   ch('5e', 'pv07', 'Le circuit électrique', 'pc_energie', '💡', 'pv07_circuit.js'),
   ch('5e', 'pv08', 'Circuits en série et en dérivation', 'pc_energie', '🎄', 'pv08_serie_derivation.js'),
+  ch('5e', 'pv10', "L'eau que nous buvons est-elle pure ?", 'pc_matiere', '🚰', 'pv10_eau.js'),
   ch('5e', 'pv09', 'La lumière', 'pc_signaux', '🔦', 'pv09_lumiere.js'),
 
   // 4ᵉ (identifiants pr, comme le « r » des maths de 4ᵉ).
@@ -128,6 +144,7 @@ export const CHAPTERS = [
   ch('4e', 'pr07', 'Intensité et tension', 'pc_energie', '🔋', 'pr07_intensite_tension.js'),
   ch('4e', 'pr08', "L'énergie et ses conversions", 'pc_energie', '⚡', 'pr08_energie_conversions.js'),
   ch('4e', 'pr09', 'Le son', 'pc_signaux', '🔊', 'pr09_son.js'),
+  ch('4e', 'pr11', "La matière dans l'espace et dans l'Univers", 'pc_matiere', '🌌', 'pr11_systeme_solaire_univers.js'),
   ch('4e', 'pr10', 'La lumière : vitesse et distances', 'pc_signaux', '🌠', 'pr10_lumiere_vitesse.js'),
 
   // 3ᵉ : programme de cycle 4 (BO n°31 du 30 juillet 2020), découpage calé
@@ -142,7 +159,50 @@ export const CHAPTERS = [
   ch('3e', 'p08', "La conservation de l'énergie", 'pc_energie', '🎢', 'p08_energie.js'),
   ch('3e', 'p09', "Résistance et loi d'Ohm", 'pc_energie', '💡', 'p09_loi_ohm.js'),
   ch('3e', 'p10', 'Puissance et énergie électriques', 'pc_energie', '🔌', 'p10_puissance_energie.js'),
+  ch('3e', 'p13', 'Rayonnement et effet de serre', 'pc_energie', '🌡️', 'p13_rayonnement_effet_serre.js'),
   ch('3e', 'p11', 'Signaux sonores et lumineux', 'pc_signaux', '🔊', 'p11_signaux.js'),
+  ch('3e', 'p12', 'Des signaux au-delà de la perception humaine', 'pc_signaux', '📡', 'p12_signaux_invisibles.js'),
+
+  // ================================================================== SVT
+  // 3ᵉ : chapitres du manuel LeLivreScolaire (SVT cycle 4) habituellement
+  // traités en troisième. Le programme de SVT est écrit pour tout le cycle :
+  // la répartition par niveau varie d'un collège à l'autre.
+  // 5ᵉ (identifiants sv). Le programme de SVT est écrit pour tout le cycle 4 : la
+  // répartition par niveau ci-dessous est indicative et varie d'un collège à l'autre.
+  ch('5e', 'sv01', 'La Terre dans le système solaire', 'svt_terre', '🌍', 'sv01_terre_systeme_solaire.js'),
+  ch('5e', 'sv02', 'Météo et climats', 'svt_terre', '⛅', 'sv02_meteo_climats.js'),
+  ch('5e', 'sv03', 'Les activités humaines et les écosystèmes locaux', 'svt_terre', '🌾', 'sv03_ecosystemes_locaux.js'),
+  ch('5e', 'sv04', 'Les échanges de matière indispensables à la vie', 'svt_vivant', '🫁', 'sv04_echanges_matiere.js'),
+  ch('5e', 'sv05', 'La nutrition des organes', 'svt_vivant', '🫀', 'sv05_nutrition_organes.js'),
+  ch('5e', 'sv06', 'La reproduction des êtres vivants', 'svt_vivant', '🌸', 'sv06_reproduction_etres_vivants.js'),
+  ch('5e', 'sv07', "Le fonctionnement de l'organisme lors d'un effort musculaire", 'svt_corps', '🏃', 'sv07_effort_musculaire.js'),
+  ch('5e', 'sv08', "Le fonctionnement de l'appareil digestif", 'svt_corps', '🍽️', 'sv08_appareil_digestif.js'),
+  ch('5e', 'sv09', 'Régimes et équilibre alimentaire', 'svt_corps', '🥗', 'sv09_equilibre_alimentaire.js'),
+
+  // 4ᵉ (identifiants sr).
+  ch('4e', 'sr01', 'Les risques sismiques et volcaniques', 'svt_terre', '🌋', 'sr01_risques_sismiques_volcaniques.js'),
+  ch('4e', 'sr02', "L'origine des séismes et des éruptions volcaniques", 'svt_terre', '🗺️', 'sr02_tectonique_plaques.js'),
+  ch('4e', 'sr03', "Les enjeux de l'exploitation de ressources naturelles", 'svt_terre', '⛏️', 'sr03_ressources_naturelles.js'),
+  ch('4e', 'sr04', "La nutrition à l'échelle cellulaire", 'svt_vivant', '🔬', 'sr04_nutrition_cellulaire.js'),
+  ch('4e', 'sr05', 'La reproduction et la stabilité des espèces', 'svt_vivant', '🧫', 'sr05_stabilite_especes.js'),
+  ch('4e', 'sr06', 'La reproduction et le peuplement des milieux', 'svt_vivant', '🌬️', 'sr06_peuplement_milieux.js'),
+  ch('4e', 'sr07', 'La diversité des espèces et des individus', 'svt_vivant', '🧬', 'sr07_diversite_especes_individus.js'),
+  ch('4e', 'sr08', 'La modification de la biodiversité au cours du temps', 'svt_vivant', '🦴', 'sr08_biodiversite_temps.js'),
+  ch('4e', 'sr09', "Les microorganismes dans l'environnement", 'svt_corps', '🦠', 'sr09_microorganismes.js'),
+  ch('4e', 'sr10', 'La production des cellules reproductrices', 'svt_corps', '🧑‍🤝‍🧑', 'sr10_cellules_reproductrices.js'),
+  ch('4e', 'sr11', 'Des cellules reproductrices au nouveau-né', 'svt_corps', '👶', 'sr11_fecondation_grossesse.js'),
+  ch('4e', 'sr12', 'Le contrôle de la reproduction', 'svt_corps', '🛡️', 'sr12_controle_reproduction.js'),
+
+  ch('3e', 's01', 'Les changements climatiques actuels et passés', 'svt_terre', '🌡️', 's01_changements_climatiques.js'),
+  ch('3e', 's02', "Les impacts des activités humaines sur l'environnement", 'svt_terre', '🏭', 's02_impacts_activites_humaines.js'),
+  ch('3e', 's03', "L'origine des caractères", 'svt_vivant', '🧬', 's03_origine_caracteres.js'),
+  ch('3e', 's04', 'De la diversité génétique à la biodiversité', 'svt_vivant', '🎲', 's04_diversite_genetique.js'),
+  ch('3e', 's05', 'Les liens de parenté entre les êtres vivants', 'svt_vivant', '🌳', 's05_liens_parente.js'),
+  ch('3e', 's06', "L'évolution de la biodiversité", 'svt_vivant', '🦕', 's06_evolution_biodiversite.js'),
+  ch('3e', 's07', 'Le fonctionnement du système nerveux', 'svt_corps', '🧠', 's07_systeme_nerveux.js'),
+  ch('3e', 's08', "L'organisme face à une infection", 'svt_corps', '🦠', 's08_infection.js'),
+  ch('3e', 's09', 'La réponse immunitaire adaptative', 'svt_corps', '💉', 's09_reponse_immunitaire.js'),
+  ch('3e', 's10', 'Des aliments aux nutriments', 'svt_corps', '🧪', 's10_aliments_nutriments.js'),
 ];
 
 // Numérotation « Chapitre n » à l'intérieur de chaque niveau, matière par matière.

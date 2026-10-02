@@ -155,9 +155,9 @@ export default {
     {
       id: 'e08', niveau: 3, type: 'qcm', consigne: 'Le plus rapide :',
       generer() {
-        const a = pick([['un guépard', 30], ['un TGV', 88], ['un faucon en piqué', 80], ['Usain Bolt', 10.4]]);
+        const a = pick([['un guépard', 30], ['un TGV', 88], ['un faucon pèlerin en piqué (record mesuré)', 108], ['Usain Bolt', 10.4]]);
         let b;
-        do { b = pick([['une voiture sur autoroute', 130], ['un cheval au galop', 60], ['un avion de ligne', 900], ['un scooter', 45], ['une Formule 1', 300]]); } while (Math.abs(a[1] * 3.6 - b[1]) < 5);
+        do { b = pick([['une voiture sur autoroute', 130], ['un cheval de course au galop', 60], ['un avion de ligne', 900], ['un scooter', 45]]); } while (Math.abs(a[1] * 3.6 - b[1]) < 5);
         return { enonce: `${a[0][0].toUpperCase() + a[0].slice(1)} atteint ${dec(a[1])} m/s ; ${b[0]} atteint ${b[1]} km/h. Lequel est le plus rapide ?`, choix: [a[0], b[0]], correct: a[1] * 3.6 > b[1] ? 0 : 1, ordre_fixe: true, _v: { a, b } };
       },
       indices: ['On ne compare que dans la même unité.', 'Convertis les m/s en km/h.', '× 3,6.'],

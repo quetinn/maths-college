@@ -24,11 +24,15 @@ js/brevet.js            Problèmes type brevet (situation + sous-questions)
 js/brevet_sciences.js   Problèmes type brevet de sciences, partie physique-chimie (unités, questions à choix)
 js/chapters/commun.js   Outils des chapitres : figures SVG, tableaux, blocs Scratch
 js/chapters/5e/vNN_*.js Chapitres de 5ᵉ (17, nouveau programme 2026)
-js/chapters/4e/rNN_*.js Chapitres de 4ᵉ (18)
+js/chapters/4e/rNN_*.js Chapitres de 4ᵉ (19)
 js/chapters/3e/cNN_*.js Chapitres de 3ᵉ (17)
-js/chapters/physique/   Physique-chimie : 5e/pvNN_*.js (9), 4e/prNN_*.js (10), 3e/pNN_*.js (11) ; figures.js,
+js/chapters/physique/   Physique-chimie : 5e/pvNN_*.js (10), 4e/prNN_*.js (11), 3e/pNN_*.js (13) ; figures.js,
                         figures_cycle.js (5ᵉ-4ᵉ) et figures_chimie.js (molécules, réactions) : figures animées,
                         outils.js (valeurs + unités, écriture scientifique)
+js/chapters/svt/        SVT : 5e/svNN_*.js (9), 4e/srNN_*.js (12), 3e/sNN_*.js (10) ; figures.js (figures animées et schémas), outils.js (fabriques
+                        d'exercices à banques de cas : classer, relier, document, vrai/faux…)
+js/brevet_svt.js        Problèmes type brevet, partie SVT de l'épreuve de sciences
+js/sources.js           Sources et crédits (page #/sources) : programmes, manuels, correspondance chapitre ↔ manuel
 js/unites.js            Lecture et comparaison des grandeurs physiques (« 150 mA », « 43,2 km/h »…)
 maquettes/              Maquettes de design (direction retenue : c_planche.html) et planche des pictogrammes
 serve.py                Serveur statique sans cache pour le dev local (optionnel)
@@ -36,9 +40,20 @@ serve.py                Serveur statique sans cache pour le dev local (optionnel
 
 ## Matières
 
-- **Maths** et **physique-chimie**, de la 5ᵉ à la 3ᵉ, sélectionnées par les
-  pastilles de l'en-tête. Chaque matière a sa couleur (vert / bleu outremer) ; les routes sont
-  `#/niveau/3e` (maths) et `#/physique/niveau/3e`. `MATIERES` dans `programme.js` liste les niveaux rédigés.
+- **Maths**, **physique-chimie** et **SVT**, de la 5ᵉ à la 3ᵉ, sélectionnées par les
+  pastilles de l'en-tête. Chaque matière a sa couleur (vert / bleu outremer / terre cuite) ; les routes sont
+  `#/niveau/3e` (maths) et `#/<matière>/niveau/3e` (`#/physique/…`, `#/svt/…`).
+- **Ajouter une matière** : une ligne dans `MATIERES` (`programme.js` : nom, dossier, couleur de la barre,
+  niveaux rédigés, épreuve de brevet), ses thèmes et chapitres, sa couleur dans `style.css`
+  (`[data-matiere="…"]`), une illustration dans `ILLUS` (`icones.js`). Le reste du site suit.
+- **Sources** : tout ce qui sert à construire le contenu est recensé dans `js/sources.js` et affiché sur la page
+  `#/sources` (lien en pied de page) ; chaque chapitre de sciences indique en bas de page le chapitre du manuel
+  correspondant. Toute nouvelle source s'ajoute dans ce fichier.
+- SVT : les 31 chapitres du manuel LeLivreScolaire (SVT cycle 4) sont traités ; ils couvrent les trois thèmes du
+  programme officiel du cycle 4. La répartition entre 5ᵉ, 4ᵉ et 3ᵉ est indicative (le programme est écrit pour le cycle).
+- **Valeurs réelles** : une date, une mesure ou un ordre de grandeur réel n'est cité que s'il figure dans `VALEURS`
+  (`js/sources.js`) avec la page où il a été lu ; sinon l'énoncé précise que les données sont inventées. Les exercices tirent dans des **banques de cas**
+  (documents, expériences, exemples) plutôt que dans des nombres.
 - Physique-chimie 3ᵉ : programme de cycle 4 (BO n°31 du 30 juillet 2020), découpage calé sur le
   manuel LeLivreScolaire. Les chapitres ont l'identifiant `pNN` et des figures animées manipulables
   (atome, tests d'ions, pH, flotte/coule, chronophotographie, forces, poids, énergie, freinage,
@@ -52,7 +67,7 @@ serve.py                Serveur statique sans cache pour le dev local (optionnel
   fonctions · Géométrie et grandeurs · Données et probabilités · Algorithmique.
 - L'élève indique **sa classe** au premier lancement (modifiable dans ⚙️ Réglages) ; son
   programme s'affiche en premier, mais les onglets 5ᵉ/4ᵉ/3ᵉ donnent accès à tout le collège.
-- Les **52 chapitres de maths** et les **30 de physique-chimie** sont rédigés (cours, méthode, 8 à 11 exercices générés aléatoirement,
+- Les **53 chapitres de maths**, les **34 de physique-chimie** et les **31 de SVT** sont rédigés (cours, méthode, 8 à 11 exercices générés aléatoirement,
   quiz bilan). Un chapitre avec `module: null` dans `programme.js` apparaîtrait « En préparation ».
 - Chaque correction reprend **les valeurs du tirage** de l'élève (pas de corrigé générique) ;
   `node tools/test_chapitres.mjs` le vérifie automatiquement.
@@ -86,7 +101,7 @@ express : `express: { cours: [0, 2], exercices: ['e01', 'e03', 'e05'] }`.
 - **Types d'exercices** : saisie, QCM (choix mélangés), vrai/faux, ordonner les étapes,
   « complète le calcul », avec clavier mathématique, lecture à voix haute et correction
   pas-à-pas. Difficulté adaptative.
-- **Examen blanc** (`#/examen`, par niveau et par thème), **Brevet blanc** (`#/brevet` : maths, ou brevet de sciences quand la matière affichée est la physique-chimie),
+- **Examen blanc** (`#/examen`, par niveau et par thème), **Brevet blanc** (`#/brevet` : maths, ou brevet de sciences — physique-chimie et SVT, 25 points chacune, note sur 50 — quand la matière affichée est une science),
   **révision du jour** (`#/revise`), **aide-mémoire** (`#/formulaire`),
   **fiches imprimables** pour le tuteur (`#/fiche`), **diagnostic** (`#/diagnostic`).
 - **PWA** installable + hors-ligne (`sw.js` : réseau d'abord pour le site, cache en secours).
@@ -144,6 +159,16 @@ export default {
   quiz_bilan: [{ type, question, choix?, correct?, reponse?, validation?, explication }],
 };
 ```
+
+**Types d'exercice** : `saisie`, `qcm`, `vrai_faux`, `complete`, `ordonner_etapes`, et trois types pensés
+pour la SVT (utilisables partout) :
+
+- `associer` : `elements: [{ texte, reponse }]` et `options` (catégories, facultatif). Trois réponses courtes
+  ou moins : des boutons par ligne (classer) ; sinon une liste déroulante (relier).
+- `legender` : `visuel` dessine un schéma à repères numérotés, `legendes: [...]` donne la légende du
+  repère 1, 2, 3… ; `leurres` ajoute des intrus.
+- `document` : un document (`enonce` et/ou `visuel`) puis `questions: [...]`, chacune à choix
+  (`choix`, `correct`) ou à saisie (`reponse`, `validation`). Chaque ligne est marquée juste ou fausse.
 
 **Validation (`validation`)** :
 

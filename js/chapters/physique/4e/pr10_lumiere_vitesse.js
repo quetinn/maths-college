@@ -11,7 +11,7 @@ const C = 300000; // km/s
 const AL = 9.46e12; // km
 const t = (x) => dec(x).replace(',', '{,}');
 
-const ASTRES = [['la Lune', 384000], ['le Soleil', 150000000], ['Mars (au plus près)', 56000000], ['Jupiter', 630000000]];
+const ASTRES = [['la Lune', 384000], ['le Soleil', 150000000], ['Mars (au plus près)', 56000000], ['Jupiter (au plus près)', 630000000]];
 const ETOILES = [['Proxima du Centaure', 4.2], ['Sirius', 8.6], ['Véga', 25], ["l'étoile Polaire", 430], ['Bételgeuse', 640]];
 
 export default {

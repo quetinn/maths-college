@@ -47,7 +47,7 @@ const P_VELO = {
 const P_BOUILLOIRE = {
   id: 'bs_bouilloire', titre: 'La bouilloire électrique', domaine: 'Énergie électrique', chapitres: ['p10', 'p09'], dureeMin: 12,
   generer() {
-    const P = pick([1800, 2000, 2200, 2400]), min = pick([3, 6]), j = pick([2, 4, 5]), prix = 0.25;
+    const P = pick([1800, 2000, 2200, 2400]), min = pick([3, 6]), j = pick([2, 4, 5]), prix = 0.2;
     const I = P / 230, EJ = P * min * 60, EkWh = (P / 1000) * (min / 60) * j * 365;
     return {
       contexte: `<p>La plaque signalétique d'une bouilloire indique : <strong>230 V – ${P} W</strong>. Elle met <strong>${min} min</strong> à faire bouillir un litre d'eau, et on l'utilise <strong>${j} fois par jour</strong>. Le kilowattheure est facturé <strong>${dec(prix)} €</strong>.</p>`,
