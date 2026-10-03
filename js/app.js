@@ -594,7 +594,6 @@ function renderHome() {
     <div class="affiche-in">
       <nav class="pilules" aria-label="Matière">
         ${MATIERES.map((x) => `<a class="pilule ${x.id === matiere ? 'on' : ''}" href="${lienAccueil(x.id, niv)}" ${x.id === matiere ? 'aria-current="page"' : ''}>${x.label}</a>`).join('')}
-        <span class="pilule bientot" title="Bientôt disponible">Techno <small>bientôt</small></span>
       </nav>
       ${ILLUS[matiere] || ILLUS.maths}
       <h1 class="affiche-titre ${mat.label.length > 8 ? 'titre-long' : ''}"><small>${nivInfo.long}</small>${mat.label}</h1>
@@ -643,7 +642,7 @@ function renderHome() {
     <div class="duo">
       <a class="duo-item" href="#/revise"><b>Révision du jour</b><span>Les exercices qui coincent</span></a>
       ${mat.brevet === 'sciences'
-        ? '<a class="duo-item" href="#/brevet"><b>Brevet de sciences</b><span>Physique-chimie et SVT, comme au brevet</span></a>'
+        ? '<a class="duo-item" href="#/brevet"><b>Brevet de sciences</b><span>Deux disciplines sur trois, comme au brevet</span></a>'
         : mat.brevet ? '<a class="duo-item" href="#/brevet"><b>Brevet blanc</b><span>Problèmes type brevet</span></a>'
         : `<a class="duo-item" href="#/examen?niveau=${niv}"><b>Examen blanc</b><span>Questions tirées au hasard</span></a>`}
     </div>
@@ -1446,7 +1445,7 @@ function mountProbleme(host, inst, opts = {}) {
   wrap.innerHTML = `
     <header class="brevet-pb-head">
       <h3>${opts.index ? opts.index + '. ' : ''}${inst.titre}</h3>
-      <span class="brevet-pb-meta">${inst.domaine} · ${inst.baremeTotal} pts</span>
+      <span class="brevet-pb-meta">${inst.domaine}${inst.sansBareme ? '' : ` · ${inst.baremeTotal} pts`}</span>
     </header>
     <div class="brevet-contexte">${inst.contexte}</div>
     <div class="brevet-figure" data-figure hidden></div>
@@ -1457,11 +1456,12 @@ function mountProbleme(host, inst, opts = {}) {
           <div class="brevet-answer">
             ${q.choix ? `<div class="brevet-choix" role="radiogroup" aria-label="Réponse question ${i + 1}">${q.ordre.map((k) => `
               <label class="brevet-option"><input type="radio" name="${nomGroupe}-${i}" value="${k}"><span>${q.choix[k]}</span></label>`).join('')}</div>`
+    : q.ouverte ? `<textarea class="brevet-ouverte" data-input="${i}" placeholder="Rédige ta réponse ici ou sur ta feuille…" aria-label="Réponse question ${i + 1}"></textarea>`
     : `<input type="text" class="answer-input" data-input="${i}" inputmode="text"
                    autocomplete="off" autocapitalize="off" spellcheck="false"
                    placeholder="${q.placeholder || 'Ta réponse…'}" aria-label="Réponse question ${i + 1}">
             ${q.unite && q.validation !== 'grandeur' ? `<span class="brevet-unite">${q.unite}</span>` : ''}`}
-            <span class="brevet-pts">${q.points} pt${q.points > 1 ? 's' : ''}</span>
+            ${inst.sansBareme ? '' : `<span class="brevet-pts">${q.ouverte ? 'à comparer au modèle' : `${q.points} pt${q.points > 1 ? 's' : ''}`}</span>`}
           </div>
           ${q.indice ? `<details class="brevet-indice"><summary>Indice</summary><div>${q.indice}</div></details>` : ''}
           <div class="brevet-q-result" data-result="${i}" hidden></div>
@@ -1483,6 +1483,14 @@ function mountProbleme(host, inst, opts = {}) {
     inst.questions.forEach((q, i) => {
       const res = wrap.querySelector(`[data-result="${i}"]`);
       let ok, message = null;
+      if (q.ouverte) {
+        // Réponse rédigée : le site ne la note pas, il montre une réponse modèle à comparer.
+        wrap.querySelector(`[data-input="${i}"]`).disabled = true;
+        res.hidden = false;
+        res.innerHTML = `<div class="brevet-modele"><strong>Réponse modèle</strong>${q.modele}</div>${q.corrige ? `<div class="brevet-corrige">${q.corrige}</div>` : ''}`;
+        renderMath(res);
+        return;
+      }
       if (q.choix) {
         const radios = [...wrap.querySelectorAll(`input[name="${nomGroupe}-${i}"]`)];
         const coche = radios.find((r) => r.checked);
@@ -1504,7 +1512,7 @@ function mountProbleme(host, inst, opts = {}) {
       }
       if (ok) score += (q.points || 1);
       res.hidden = false;
-      res.innerHTML = `<p class="${ok ? 'brevet-ok' : 'brevet-ko'}">${ok ? 'Correct' : 'À revoir'} (${ok ? q.points : 0}/${q.points})</p>
+      res.innerHTML = `<p class="${ok ? 'brevet-ok' : 'brevet-ko'}">${ok ? 'Correct' : 'À revoir'}${inst.sansBareme ? '' : ` (${ok ? q.points : 0}/${q.points})`}</p>
         ${message ? `<p class="brevet-diagnostic">${message}</p>` : ''}
         <div class="brevet-corrige">${q.corrige || ''}</div>`;
       renderMath(res);
@@ -1541,17 +1549,19 @@ async function renderBrevet() {
     return;
   }
   const sciences = mat.brevet === 'sciences';
-  // Épreuve de sciences : deux disciplines (physique-chimie et SVT), 25 points chacune.
+  // Épreuve de sciences : deux disciplines parmi trois (physique-chimie, SVT, technologie), 10 points chacune.
   // Chaque problème garde sa discipline et son générateur.
   let PROBLEMES;
   try {
     const mods = sciences
-      ? [['Physique-chimie', 'physique', await import('./brevet_sciences.js')], ['SVT', 'svt', await import('./brevet_svt.js')]]
+      ? [['Physique-chimie', 'physique', await import('./brevet_sciences.js')], ['SVT', 'svt', await import('./brevet_svt.js')], ['Technologie', 'techno', await import('./brevet_techno.js')]]
       : [['Maths', 'maths', await import('./brevet.js')]];
     PROBLEMES = mods.flatMap(([discipline, matiere, m]) => m.PROBLEMES.map((p) => ({ ...p, discipline, matiere, instance: () => Object.assign(m.genererProbleme(p), { discipline }) })));
   } catch (e) { console.error(e); root.innerHTML = `<p class="notice">Erreur de chargement du brevet. <a href="#/">Retour</a></p>`; return; }
   // Discipline de la matière affichée en premier.
   const disciplines = [...new Set(PROBLEMES.map((p) => p.discipline))].sort((a, b) => (PROBLEMES.find((p) => p.discipline === b).matiere === mat.id) - (PROBLEMES.find((p) => p.discipline === a).matiere === mat.id));
+
+  const matiereDe = (d) => PROBLEMES.find((p) => p.discipline === d).matiere;
 
   // — Accueil du brevet : choisir un sujet complet ou un problème ciblé —
   if (!sujet && !pbId) {
@@ -1569,13 +1579,17 @@ async function renderBrevet() {
       <header class="dash-hero">
         <h1>${sciences ? 'Brevet de sciences' : 'Brevet blanc'}</h1>
         <p class="muted">${sciences
-          ? "Au brevet, l'épreuve de sciences dure une heure et porte sur deux disciplines tirées parmi la physique-chimie, la SVT et la technologie : 25 points et 30 minutes chacune. Voici des problèmes du même type : une situation, des documents, des questions qui s'enchaînent."
+          ? "Au brevet, l'épreuve de sciences dure une heure et porte sur deux disciplines tirées parmi la physique-chimie, la SVT et la technologie : 30 minutes et 10 points chacune, dont 1 pour la qualité de la rédaction. Voici des problèmes du même type : une situation, des documents, des questions qui s'enchaînent."
           : "De vrais problèmes comme au Diplôme National du Brevet : une situation concrète, plusieurs questions qui s'enchaînent, un barème et un corrigé détaillé. Tu rédiges, puis tu corriges."}</p>
       </header>
       <section class="chapter-section">
         <h2>Sujet complet</h2>
-        <p class="muted">${sciences ? 'Physique-chimie puis SVT : deux problèmes par discipline, une heure à viser, 25 points par discipline, note sur 50.' : '5 problèmes tirés au hasard sur tout le programme, avec chrono et note sur 20.'}</p>
-        <button class="btn btn-primary" data-sujet>Commencer un sujet complet</button>
+        <p class="muted">${sciences
+          ? 'Deux disciplines sur trois, annoncées deux mois avant le brevet : choisis-les, ou laisse le hasard décider. Deux problèmes par discipline, une heure à viser, 10 points par discipline, note sur 20.'
+          : 'Comme au brevet depuis 2027 : 20 minutes d\'automatismes sans calculatrice (6 points), puis 1 h 40 de problèmes avec calculatrice (14 points).'}</p>
+        <button class="btn btn-primary" data-sujet>${sciences ? 'Sujet au hasard' : 'Commencer un sujet complet'}</button>
+        ${sciences ? `<div class="brevet-paires">${disciplines.flatMap((a, i) => disciplines.slice(i + 1).map((b) => `<button class="btn btn-ghost" data-paire="${matiereDe(a)},${matiereDe(b)}">${a} + ${b}</button>`)).join('')}</div>`
+          : '<button class="btn btn-ghost" data-auto>Automatismes seuls (20 min)</button>'}
       </section>
       <section class="chapter-section">
         <h2>S'entraîner problème par problème</h2>
@@ -1583,61 +1597,122 @@ async function renderBrevet() {
       </section>`;
     root.querySelector('[data-back]').addEventListener('click', () => navigate('#/'));
     root.querySelector('[data-sujet]').addEventListener('click', () => navigate('#/brevet?sujet=complet'));
+    root.querySelector('[data-auto]')?.addEventListener('click', () => navigate('#/brevet?sujet=auto'));
+    root.querySelectorAll('[data-paire]').forEach((b) => b.addEventListener('click', () => navigate(`#/brevet?sujet=complet&d=${b.dataset.paire}`)));
     root.querySelectorAll('[data-pb]').forEach((b) => b.addEventListener('click', () => navigate(`#/brevet?pb=${b.dataset.pb}`)));
     return;
   }
 
   // — Sélection des problèmes —
-  let chosen;
+  const autoSeul = !sciences && sujet === 'auto';
+  const isSujet = !pbId;
+  let chosen = [];
   if (pbId) {
     const p = PROBLEMES.find((x) => x.id === pbId);
     chosen = p ? [p] : [];
-  } else {
+  } else if (!autoSeul) {
     const shuffled = [...PROBLEMES];
     for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; }
-    chosen = sciences ? disciplines.flatMap((d) => shuffled.filter((p) => p.discipline === d).slice(0, 2)) : shuffled.slice(0, 5);
+    // Sciences : deux disciplines, celles demandées (« d=physique,techno ») ou deux tirées au hasard.
+    const voulues = (params.get('d') || '').split(',').filter(Boolean);
+    const retenues = disciplines.filter((d) => voulues.includes(matiereDe(d)));
+    const deux = retenues.length === 2 ? retenues : disciplines.filter((d) => [...new Set(shuffled.map((p) => p.discipline))].slice(0, 2).includes(d));
+    chosen = sciences ? deux.flatMap((d) => shuffled.filter((p) => p.discipline === d).slice(0, 2)) : shuffled.slice(0, 5);
   }
-  if (!chosen.length) { root.innerHTML = `<p class="notice">Problème introuvable. <a href="#/brevet">Retour</a></p>`; return; }
+  if (!chosen.length && !autoSeul) { root.innerHTML = `<p class="notice">Problème introuvable. <a href="#/brevet">Retour</a></p>`; return; }
 
   const instances = chosen.map((p) => p.instance());
   const baremeGlobal = instances.reduce((s, p) => s + p.baremeTotal, 0);
-  const isSujet = !pbId;
+  // Maths : le sujet s'ouvre sur la partie 1, des automatismes sans calculatrice (session 2027).
+  let auto = null;
+  if (!sciences && isSujet) {
+    try { auto = (await import('./automatismes.js')).genererAutomatismes(); }
+    catch (e) { console.error(e); root.innerHTML = `<p class="notice">Erreur de chargement du brevet. <a href="#/">Retour</a></p>`; return; }
+  }
+  const deuxParties = !!auto && !autoSeul;
+
+  const titre = !isSujet ? instances[0].titre : sciences ? 'Brevet de sciences' : autoSeul ? 'Automatismes' : 'Sujet de brevet blanc';
+  const bareme = !isSujet ? `Barème : ${baremeGlobal} points`
+    : sciences ? 'Barème : 20 points (10 par discipline)'
+    : autoSeul ? 'Barème : 6 points' : 'Barème : 20 points (6 + 14)';
+  const consignes = auto
+    ? `<ul class="brevet-consignes muted no-print">
+        <li>${deuxParties ? '<strong>Partie 1</strong> : 20' : 'Comme la partie 1 du brevet : 20'} minutes, <strong>sans calculatrice</strong>. Note seulement tes résultats.${deuxParties ? ' Une fois rendue, tu ne peux plus y revenir : au brevet, la copie est relevée.' : ''}</li>
+        ${deuxParties ? '<li><strong>Partie 2</strong> : 1 h 40, calculatrice autorisée. Rédige sur une feuille en justifiant chaque réponse, puis saisis tes résultats.</li>' : ''}
+      </ul>`
+    : `<p class="muted no-print">Rédige tes réponses sur une feuille, saisis tes résultats${sciences ? ' <strong>avec leur unité</strong>' : ''}, puis clique sur « Corriger ».
+      Une calculatrice est autorisée.</p>`;
 
   root.innerHTML = `
     <button class="btn btn-ghost btn-back" data-back>← Quitter</button>
     <header class="brevet-hero">
-      <h1>${isSujet ? (sciences ? 'Brevet de sciences' : 'Sujet de brevet blanc') : instances[0].titre}</h1>
+      <h1>${titre}</h1>
       <div class="brevet-hero-meta">
-        <span class="brevet-bareme">${sciences && isSujet ? 'Barème : 50 points (25 par discipline)' : `Barème : ${baremeGlobal} points`}</span>
+        <span class="brevet-bareme">${bareme}</span>
         ${isSujet ? '<span class="exam-timer" data-timer>00:00</span>' : ''}
       </div>
     </header>
-    <p class="muted no-print">Rédige tes réponses sur une feuille, saisis tes résultats${sciences ? ' <strong>avec leur unité</strong>' : ''}, puis clique sur « Corriger ».
-      Une calculatrice est autorisée.</p>
-    <div class="brevet-host"></div>
+    ${consignes}
+    <div class="brevet-host" data-partie1></div>
+    ${deuxParties ? `<div class="brevet-foot no-print" data-zone-rendre><button class="btn btn-primary" data-rendre>Rendre la partie 1</button></div>
+    <div class="brevet-host" data-partie2 hidden></div>` : ''}
     <div class="brevet-foot no-print">
-      <button class="btn btn-primary" data-correct>Corriger ${isSujet ? 'le sujet' : 'le problème'}</button>
+      <button class="btn btn-primary" data-correct ${deuxParties ? 'hidden' : ''}>Corriger ${isSujet ? 'le sujet' : 'le problème'}</button>
     </div>
     <div class="brevet-result" data-bilan hidden></div>`;
   root.querySelector('[data-back]').addEventListener('click', () => { if (examTimer) { clearInterval(examTimer); examTimer = null; } navigate('#/brevet'); });
 
-  const host = root.querySelector('.brevet-host');
+  const host1 = root.querySelector('[data-partie1]');
+  const host2 = root.querySelector('[data-partie2]') || host1;
+  let autoCtrl = null;
+  if (auto) {
+    if (deuxParties) host1.insertAdjacentHTML('beforeend', '<h2 class="brevet-partie">Partie 1 <small>6 points · 20 min · sans calculatrice</small></h2>');
+    autoCtrl = mountProbleme(host1, auto);
+  }
+  if (deuxParties) host2.insertAdjacentHTML('beforeend', '<h2 class="brevet-partie">Partie 2 <small>14 points · 1 h 40 · calculatrice autorisée</small></h2>');
   const controllers = instances.map((inst, i) => {
     // Sujet de sciences : un intertitre au début de chaque discipline.
-    if (sciences && isSujet && (i === 0 || instances[i - 1].discipline !== inst.discipline)) host.insertAdjacentHTML('beforeend', `<h2 class="brevet-partie">${inst.discipline} <small>25 points · 30 min</small></h2>`);
-    return mountProbleme(host, inst, { index: isSujet ? i + 1 : 0 });
+    if (sciences && isSujet && (i === 0 || instances[i - 1].discipline !== inst.discipline)) host2.insertAdjacentHTML('beforeend', `<h2 class="brevet-partie">${inst.discipline} <small>10 points · 30 min</small></h2>`);
+    return mountProbleme(host2, inst, { index: isSujet ? i + 1 : 0 });
   });
 
-  // Chrono (sujet complet uniquement)
+  // Chrono (sujets uniquement) : il monte, ou descend quand la durée est imposée.
   let sec = 0;
-  if (isSujet) {
-    const tEl = root.querySelector('[data-timer]');
-    examTimer = setInterval(() => { sec++; tEl.textContent = `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`; }, 1000);
-  }
+  const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+  const tEl = root.querySelector('[data-timer]');
+  const lancerChrono = (duree, fin) => {
+    if (examTimer) clearInterval(examTimer);
+    let t = 0;
+    tEl.textContent = mmss(duree || 0);
+    tEl.classList.remove('is-fini');
+    examTimer = setInterval(() => {
+      sec++; t++;
+      if (!duree) { tEl.textContent = mmss(t); return; }
+      tEl.textContent = mmss(Math.max(duree - t, 0));
+      if (t >= duree) { tEl.classList.add('is-fini'); if (fin) { const f = fin; fin = null; f(); } }
+    }, 1000);
+  };
 
   const correctBtn = root.querySelector('[data-correct]');
+  // Fin de la partie 1 : la copie est « relevée », la partie 2 s'ouvre.
+  const rendre = () => {
+    const zone = root.querySelector('[data-zone-rendre]');
+    if (!zone || zone.hidden) return;
+    autoCtrl.element.querySelectorAll('input').forEach((x) => { x.disabled = true; });
+    zone.hidden = true;
+    zone.insertAdjacentHTML('afterend', '<p class="brevet-rendu no-print">Partie 1 rendue : elle sera corrigée avec la partie 2. Tu peux sortir ta calculatrice.</p>');
+    host2.hidden = false;
+    correctBtn.hidden = false;
+    lancerChrono(100 * 60);
+    host2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  root.querySelector('[data-rendre]')?.addEventListener('click', rendre);
+  if (isSujet) lancerChrono(auto ? 20 * 60 : 0, deuxParties ? rendre : autoSeul ? () => correctBtn.click() : null);
+
   correctBtn.addEventListener('click', () => {
     if (examTimer) { clearInterval(examTimer); examTimer = null; }
+    const demi = (x) => Math.round(x * 2) / 2;
+    const fr = (x) => String(x).replace('.', ',');
     let score = 0;
     const parDiscipline = {}; // discipline → [points obtenus, barème]
     controllers.forEach((c, i) => {
@@ -1646,14 +1721,33 @@ async function renderBrevet() {
       parDiscipline[d] = parDiscipline[d] || [0, 0];
       parDiscipline[d][0] += s; parDiscipline[d][1] += instances[i].baremeTotal;
     });
-    // Sciences : chaque discipline est ramenée sur 25, le sujet sur 50.
-    const notes25 = Object.entries(parDiscipline).map(([d, [s, b]]) => [d, b ? Math.round((s / b) * 25 * 2) / 2 : 0]);
-    const note50 = notes25.reduce((t, x) => t + x[1], 0);
-    const fr = (x) => String(x).replace('.', ',');
-    const note20 = baremeGlobal ? Math.round((score / baremeGlobal) * 20 * 10) / 10 : 0;
-    const xpGain = score * 5 + (note20 >= 10 ? 40 : 0);
+    const bonnes = autoCtrl ? autoCtrl.grade().score : 0;
+
+    // Part de la note corrigée ici (sur `maxAuto`) ; les points de rédaction, que le site
+    // ne peut pas juger, sont à s'attribuer après relecture de la feuille.
+    let pointsAuto = score, maxAuto = baremeGlobal, redaction = 0, detail = '';
+    if (sciences && isSujet) {
+      // Chaque discipline : 10 points au brevet, dont 1 de maîtrise de la langue.
+      const notes = Object.entries(parDiscipline).map(([d, [s, b]]) => [d, b ? demi((s / b) * 9) : 0]);
+      pointsAuto = notes.reduce((t, x) => t + x[1], 0); maxAuto = 18; redaction = 2;
+      detail = notes.map(([d, x]) => `${d} : <strong>${fr(x)} / 9</strong>`).join(' · ');
+    } else if (deuxParties) {
+      // Partie 1 sur 6 ; partie 2 sur 14, dont 2 de rédaction.
+      const p1 = demi((bonnes / auto.baremeTotal) * 6), p2 = baremeGlobal ? demi((score / baremeGlobal) * 12) : 0;
+      pointsAuto = p1 + p2; maxAuto = 18; redaction = 2;
+      detail = `Partie 1 : <strong>${fr(p1)} / 6</strong> (${bonnes} bonne${bonnes > 1 ? 's' : ''} réponse${bonnes > 1 ? 's' : ''} sur ${auto.baremeTotal}) · Partie 2 : <strong>${fr(p2)} / 12</strong>`;
+    } else if (autoSeul) {
+      pointsAuto = demi((bonnes / auto.baremeTotal) * 6); maxAuto = 6;
+      detail = `${bonnes} bonne${bonnes > 1 ? 's' : ''} réponse${bonnes > 1 ? 's' : ''} sur ${auto.baremeTotal}`;
+    }
+    const note20 = maxAuto ? Math.round((pointsAuto / maxAuto) * 200) / 10 : 0;
+    const xpGain = (score + bonnes) * 5 + (note20 >= 10 ? 40 : 0);
     Store.addXP(xpGain);
-    if (isSujet && note20 >= 10) Store.markExamPassed();
+    if (isSujet && !autoSeul && note20 >= 10) Store.markExamPassed();
+
+    const texteNote = (r) => (redaction ? `<strong>${fr(pointsAuto + r)} / 20</strong>`
+      : autoSeul ? `<strong>${fr(pointsAuto)} / 6</strong>`
+      : `<strong>${score} / ${baremeGlobal}</strong> points — soit <strong>${fr(note20)} / 20</strong>`);
 
     const bilan = root.querySelector('[data-bilan]');
     bilan.hidden = false;
@@ -1664,10 +1758,19 @@ async function renderBrevet() {
     bilan.innerHTML = `
       <div class="brevet-bilan-card">
         <h2>Bilan ${isSujet ? 'du sujet' : ''}</h2>
-        <p class="brevet-note">${sciences && isSujet
-          ? `<strong>${fr(note50)} / 50</strong> — ${notes25.map(([d, x]) => `${d} : <strong>${fr(x)} / 25</strong>`).join(' · ')}`
-          : `<strong>${score} / ${baremeGlobal}</strong> points — soit <strong>${fr(note20)} / 20</strong>`}</p>
-        ${isSujet ? `<p class="muted">Temps : ${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')} · +${xpGain} XP</p>` : `<p class="muted">+${xpGain} XP</p>`}
+        <p class="brevet-note">${texteNote(0)}</p>
+        ${detail ? `<p class="brevet-detail">${detail}</p>` : ''}
+        ${redaction ? `<fieldset class="brevet-redaction">
+          <legend>Rédaction : ${redaction} points à t'attribuer</legend>
+          <p>${sciences
+            ? 'Au brevet, 1 point par discipline récompense la maîtrise de la langue : phrases complètes, vocabulaire scientifique précis, orthographe.'
+            : 'Au brevet, 2 points de la partie 2 récompensent la clarté du raisonnement et la rédaction : chaque réponse justifiée par un calcul et une phrase.'}
+            Relis ta feuille, ou fais-la relire.</p>
+          <label><input type="radio" name="redaction" value="0" checked> Pas encore : 0 point</label>
+          <label><input type="radio" name="redaction" value="1"> En partie : 1 point</label>
+          <label><input type="radio" name="redaction" value="2"> Partout : 2 points</label>
+        </fieldset>` : ''}
+        ${isSujet ? `<p class="muted">Temps : ${mmss(sec)} · +${xpGain} XP</p>` : `<p class="muted">+${xpGain} XP</p>`}
         <p>${appreciation}</p>
         <div class="brevet-bilan-actions no-print">
           <button class="btn btn-primary" data-retry>${isSujet ? 'Nouveau sujet' : 'Rejouer'}</button>
@@ -1676,6 +1779,7 @@ async function renderBrevet() {
         </div>
       </div>`;
     renderMath(bilan);
+    bilan.querySelectorAll('input[name="redaction"]').forEach((r) => r.addEventListener('change', () => { bilan.querySelector('.brevet-note').innerHTML = texteNote(+r.value); }));
     correctBtn.disabled = true;
     if (note20 >= 10) confetti();
     bilan.scrollIntoView({ behavior: 'smooth', block: 'start' });

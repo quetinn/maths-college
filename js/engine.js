@@ -817,7 +817,8 @@ export function mountExercise(container, exercice, hooks = {}) {
         const li = document.createElement('li'); li.innerHTML = etapes[correctionStep]; ol.appendChild(li); renderMath(li); correctionStep++;
       }
       const nb = sol.querySelector('[data-act="next-step"]');
-      if (correctionStep >= etapes.length) { nb.remove(); appendReponse(sol); }
+      // Toutes les étapes sont affichées : un nouveau clic sur « correction » ne fait plus rien.
+      if (correctionStep >= etapes.length) { if (nb) { nb.remove(); appendReponse(sol); } }
       else { nb.onclick = () => revealCorrection(); }
       return;
     }

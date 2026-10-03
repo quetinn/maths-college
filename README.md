@@ -21,6 +21,7 @@ js/engine.js            Moteur d'exercices : génération, validation, indices, 
 js/render.js            KaTeX, traceur de fonctions SVG, JSXGraph, Chart.js
 js/icones.js            Pictogrammes SVG (un par chapitre de 3ᵉ, un par thème) et icônes d'interface
 js/brevet.js            Problèmes type brevet (situation + sous-questions)
+js/automatismes.js      Partie 1 du brevet de maths : questions courtes sans calculatrice (24 générateurs)
 js/brevet_sciences.js   Problèmes type brevet de sciences, partie physique-chimie (unités, questions à choix)
 js/chapters/commun.js   Outils des chapitres : figures SVG, tableaux, blocs Scratch
 js/chapters/5e/vNN_*.js Chapitres de 5ᵉ (17, nouveau programme 2026)
@@ -32,6 +33,8 @@ js/chapters/physique/   Physique-chimie : 5e/pvNN_*.js (10), 4e/prNN_*.js (11), 
 js/chapters/svt/        SVT : 5e/svNN_*.js (9), 4e/srNN_*.js (12), 3e/sNN_*.js (10) ; figures.js (figures animées et schémas), outils.js (fabriques
                         d'exercices à banques de cas : classer, relier, document, vrai/faux…)
 js/brevet_svt.js        Problèmes type brevet, partie SVT de l'épreuve de sciences
+js/chapters/techno/     Technologie : 3e/tNN_*.js (9) ; figures.js (schéma-bloc, engrenages, octet, réseau, planning), outils.js
+js/brevet_techno.js     Problèmes type brevet, partie technologie (questions guidées notées + questions à rédiger avec réponse modèle)
 js/sources.js           Sources et crédits (page #/sources) : programmes, manuels, correspondance chapitre ↔ manuel
 js/unites.js            Lecture et comparaison des grandeurs physiques (« 150 mA », « 43,2 km/h »…)
 maquettes/              Maquettes de design (direction retenue : c_planche.html) et planche des pictogrammes
@@ -42,7 +45,7 @@ serve.py                Serveur statique sans cache pour le dev local (optionnel
 
 - **Maths**, **physique-chimie** et **SVT**, de la 5ᵉ à la 3ᵉ, sélectionnées par les
   pastilles de l'en-tête. Chaque matière a sa couleur (vert / bleu outremer / terre cuite) ; les routes sont
-  `#/niveau/3e` (maths) et `#/<matière>/niveau/3e` (`#/physique/…`, `#/svt/…`).
+  `#/niveau/3e` (maths) et `#/<matière>/niveau/3e` (`#/physique/…`, `#/svt/…`, `#/techno/…`).
 - **Ajouter une matière** : une ligne dans `MATIERES` (`programme.js` : nom, dossier, couleur de la barre,
   niveaux rédigés, épreuve de brevet), ses thèmes et chapitres, sa couleur dans `style.css`
   (`[data-matiere="…"]`), une illustration dans `ILLUS` (`icones.js`). Le reste du site suit.
@@ -67,7 +70,7 @@ serve.py                Serveur statique sans cache pour le dev local (optionnel
   fonctions · Géométrie et grandeurs · Données et probabilités · Algorithmique.
 - L'élève indique **sa classe** au premier lancement (modifiable dans ⚙️ Réglages) ; son
   programme s'affiche en premier, mais les onglets 5ᵉ/4ᵉ/3ᵉ donnent accès à tout le collège.
-- Les **53 chapitres de maths**, les **34 de physique-chimie** et les **31 de SVT** sont rédigés (cours, méthode, 8 à 11 exercices générés aléatoirement,
+- Les **53 chapitres de maths**, les **34 de physique-chimie**, les **31 de SVT** et les **9 de technologie de 3ᵉ** sont rédigés (cours, méthode, 8 à 11 exercices générés aléatoirement,
   quiz bilan). Un chapitre avec `module: null` dans `programme.js` apparaîtrait « En préparation ».
 - Chaque correction reprend **les valeurs du tirage** de l'élève (pas de corrigé générique) ;
   `node tools/test_chapitres.mjs` le vérifie automatiquement.
@@ -101,7 +104,7 @@ express : `express: { cours: [0, 2], exercices: ['e01', 'e03', 'e05'] }`.
 - **Types d'exercices** : saisie, QCM (choix mélangés), vrai/faux, ordonner les étapes,
   « complète le calcul », avec clavier mathématique, lecture à voix haute et correction
   pas-à-pas. Difficulté adaptative.
-- **Examen blanc** (`#/examen`, par niveau et par thème), **Brevet blanc** (`#/brevet` : maths, ou brevet de sciences — physique-chimie et SVT, 25 points chacune, note sur 50 — quand la matière affichée est une science),
+- **Examen blanc** (`#/examen`, par niveau et par thème), **Brevet blanc** (`#/brevet`, au format de la session 2027 : en maths, 20 min d'automatismes sans calculatrice sur 6 points puis des problèmes sur 14 ; en sciences, physique-chimie et SVT sur 10 points chacune ; les points de rédaction sont à s'attribuer soi-même),
   **révision du jour** (`#/revise`), **aide-mémoire** (`#/formulaire`),
   **fiches imprimables** pour le tuteur (`#/fiche`), **diagnostic** (`#/diagnostic`).
 - **PWA** installable + hors-ligne (`sw.js` : réseau d'abord pour le site, cache en secours).
@@ -112,7 +115,7 @@ Les modules ES ne fonctionnent pas en `file://` : il faut un serveur HTTP.
 
 ```bash
 python serve.py              # serveur sans cache (recommandé en dev) → http://localhost:8124
-node tools/test_chapitres.mjs # vérifie les 82 chapitres et les 18 problèmes de brevet
+node tools/test_chapitres.mjs # vérifie les 127 chapitres, les 28 problèmes de brevet et les 24 automatismes
 node tools/mock_sheets.mjs   # (option) faux Google Sheets → http://localhost:8125/exec
 ```
 

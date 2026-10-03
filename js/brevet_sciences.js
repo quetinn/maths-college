@@ -1,6 +1,6 @@
 // =====================================================================
 //  brevet_sciences.js — Problèmes type Brevet, partie physique-chimie
-//  de l'épreuve de sciences (25 points, 30 minutes au DNB).
+//  de l'épreuve de sciences (10 points, 30 minutes au DNB depuis 2027).
 //
 //  Même schéma que brevet.js, avec deux possibilités en plus pour une
 //  question :

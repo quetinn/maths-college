@@ -10,7 +10,7 @@
 //  Bumper VERSION purge les anciens caches.
 // =====================================================================
 
-const VERSION = 'v19';
+const VERSION = 'v22';
 const CACHE = 'maths-college-' + VERSION;
 
 // Coquille de l'application (chemins relatifs à l'emplacement du SW = racine).
@@ -27,6 +27,19 @@ const CORE = [
   './js/chapters/physique/figures_chimie.js',
   './js/brevet_sciences.js',
   './js/brevet_svt.js',
+  './js/automatismes.js',
+  './js/brevet_techno.js',
+  './js/chapters/techno/figures.js',
+  './js/chapters/techno/outils.js',
+  './js/chapters/techno/3e/t01_innovations_societe.js',
+  './js/chapters/techno/3e/t02_choisir_objet.js',
+  './js/chapters/techno/3e/t03_ia_numerique.js',
+  './js/chapters/techno/3e/t04_chaine_energie.js',
+  './js/chapters/techno/3e/t05_chaine_information.js',
+  './js/chapters/techno/3e/t06_internet.js',
+  './js/chapters/techno/3e/t07_reparer.js',
+  './js/chapters/techno/3e/t08_programmer.js',
+  './js/chapters/techno/3e/t09_projet_validation.js',
   './js/chapters/svt/figures.js',
   './js/chapters/svt/outils.js',
   './js/chapters/physique/3e/p12_signaux_invisibles.js',

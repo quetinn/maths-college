@@ -77,6 +77,23 @@ Object.assign(PICTOS, {
     <path ${trait} d="M3 23h9l3-6 5 11 3-7 2 2h16"/>`,
 });
 
+// Technologie : les trois thèmes du programme
+Object.assign(PICTOS, {
+  // Usages et société : un objet connecté et ses ondes
+  tk_usages: `
+    <rect ${plein} x="13" y="6" width="18" height="32" rx="4"/>
+    <rect ${trait} x="13" y="6" width="18" height="32" rx="4"/><path ${trait} d="M19 32h6M5 16a9 9 0 0 0 0 12M39 16a9 9 0 0 1 0 12"/>`,
+  // Structure et fonctionnement : une roue dentée
+  tk_structure: `
+    <circle ${plein} cx="22" cy="22" r="11"/>
+    <circle ${trait} cx="22" cy="22" r="11"/><circle ${trait} cx="22" cy="22" r="4"/>
+    <path ${trait} d="M22 5v6M22 33v6M5 22h6M33 22h6M10 10l4 4M30 30l4 4M34 10l-4 4M14 30l-4 4"/>`,
+  // Création et réalisation : une équerre et un crayon
+  tk_creation: `
+    <path ${plein} d="M6 38V10l28 28z"/>
+    <path ${trait} d="M6 38V10l28 28zM13 31v-7l7 7zM27 6l11 11-4 4L23 10z"/>`,
+});
+
 /** Pictogrammes propres à un chapitre. Les autres chapitres prennent celui de leur thème. */
 const PICTOS_CHAP = {
   // ------------------------------------------------------------ SVT 3ᵉ
@@ -462,5 +479,22 @@ export const ILLU_SVT = `
 }).join('')}
 </svg>`;
 
+/** Contour d'une roue dentée de n dents, de rayon primitif r. */
+function roueDentee(cx, cy, r, n, phase = 0) {
+  const p = (2 * Math.PI) / n, pts = [];
+  for (let k = 0; k < n; k++) {
+    const a = phase + k * p;
+    [[-0.25, r - 7], [-0.12, r + 7], [0.12, r + 7], [0.25, r - 7]].forEach(([t, d]) => pts.push(`${(cx + d * Math.cos(a + t * p)).toFixed(1)},${(cy + d * Math.sin(a + t * p)).toFixed(1)}`));
+  }
+  return pts.join(' ');
+}
+
+/** Illustration animée de l'accueil de technologie : deux roues dentées qui s'entraînent (12 et 8 dents). */
+export const ILLU_TECHNO = `
+<svg class="illu illu-engrenage" viewBox="0 0 220 220" aria-hidden="true">
+  <g class="illu-roue-a"><polygon class="illu-roue" points="${roueDentee(80, 135, 60, 12)}"/><circle class="illu-roue" cx="80" cy="135" r="24"/><circle class="illu-moyeu" cx="80" cy="135" r="8"/></g>
+  <g class="illu-roue-b"><polygon class="illu-roue illu-roue-j" points="${roueDentee(150.7, 64.3, 40, 8)}"/><circle class="illu-moyeu" cx="150.7" cy="64.3" r="7"/></g>
+</svg>`;
+
 /** Illustration de l'accueil de chaque matière. */
-export const ILLUS = { maths: ILLU_MATHS, physique: ILLU_PHYSIQUE, svt: ILLU_SVT };
+export const ILLUS = { maths: ILLU_MATHS, physique: ILLU_PHYSIQUE, svt: ILLU_SVT, techno: ILLU_TECHNO };

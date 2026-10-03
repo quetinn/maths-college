@@ -28,12 +28,13 @@ export const NIVEAUX = [
  *  - `niveaux` : niveaux déjà rédigés (les autres s'affichent « bientôt ») ;
  *  - `brevet`  : épreuve proposée ('maths', 'sciences') ou null.
  * Identifiants des chapitres : c/r/v (maths 3ᵉ/4ᵉ/5ᵉ), p/pr/pv (physique-chimie),
- * s/sr/sv (SVT).
+ * s/sr/sv (SVT), t (technologie 3ᵉ).
  */
 export const MATIERES = [
   { id: 'maths',    label: 'Maths',           nom: 'maths',           dossier: '',          couleur: ['#0f7b5a', '#0b3d2e'], niveaux: ['5e', '4e', '3e'], brevet: 'maths' },
   { id: 'physique', label: 'Physique-chimie', nom: 'physique-chimie', dossier: 'physique/', couleur: ['#2238d6', '#1a2690'], niveaux: ['5e', '4e', '3e'], brevet: 'sciences' },
   { id: 'svt',      label: 'SVT',             nom: 'SVT',             dossier: 'svt/',      couleur: ['#b5432b', '#7d2a19'], niveaux: ['5e', '4e', '3e'], brevet: 'sciences' },
+  { id: 'techno',   label: 'Technologie',     nom: 'technologie',     dossier: 'techno/',   couleur: ['#6b3fa0', '#3f2466'], niveaux: ['3e'], brevet: 'sciences' },
 ];
 
 export const THEMES = [
@@ -51,6 +52,10 @@ export const THEMES = [
   { id: 'svt_terre',  matiere: 'svt', label: "La planète Terre, l'environnement et l'action humaine", icone: '🌍' },
   { id: 'svt_vivant', matiere: 'svt', label: 'Le vivant et son évolution',                           icone: '🧬' },
   { id: 'svt_corps',  matiere: 'svt', label: 'Le corps humain et la santé',                          icone: '🫀' },
+  // Technologie : les trois thèmes du programme de cycle 4 (BO n° 9 du 29 février 2024)
+  { id: 'tk_usages',    matiere: 'techno', label: 'Les objets techniques, leurs usages et la société', icone: '🌐' },
+  { id: 'tk_structure', matiere: 'techno', label: 'Structure, fonctionnement, comportement',           icone: '⚙️' },
+  { id: 'tk_creation',  matiere: 'techno', label: 'Création, conception, réalisation',                 icone: '🛠️' },
 ];
 
 const matiereDuTheme = (theme) => (THEMES.find((t) => t.id === theme) || {}).matiere || 'maths';
@@ -203,6 +208,19 @@ export const CHAPTERS = [
   ch('3e', 's08', "L'organisme face à une infection", 'svt_corps', '🦠', 's08_infection.js'),
   ch('3e', 's09', 'La réponse immunitaire adaptative', 'svt_corps', '💉', 's09_reponse_immunitaire.js'),
   ch('3e', 's10', 'Des aliments aux nutriments', 'svt_corps', '🧪', 's10_aliments_nutriments.js'),
+
+  // ================================================================== Technologie
+  // 3ᵉ : chapitres construits sur les repères de progressivité de la classe de 3ᵉ
+  // du programme de 2024 (aucun manuel de référence en accès libre).
+  ch('3e', 't01', 'Sciences, innovations et société', 'tk_usages', '💡', 't01_innovations_societe.js'),
+  ch('3e', 't02', 'Comparer et choisir un objet technique', 'tk_usages', '♻️', 't02_choisir_objet.js'),
+  ch('3e', 't03', "L'intelligence artificielle et le numérique dans la société", 'tk_usages', '🤖', 't03_ia_numerique.js'),
+  ch('3e', 't04', "La chaîne d'énergie en schéma-bloc", 'tk_structure', '🔋', 't04_chaine_energie.js'),
+  ch('3e', 't05', "La chaîne d'information et la numérisation", 'tk_structure', '🔢', 't05_chaine_information.js'),
+  ch('3e', 't06', 'Internet : adresses, routage, débit', 'tk_structure', '🛰️', 't06_internet.js'),
+  ch('3e', 't07', 'Diagnostiquer et réparer', 'tk_structure', '🔧', 't07_reparer.js'),
+  ch('3e', 't08', 'Programmer une nouvelle fonctionnalité', 'tk_structure', '🧩', 't08_programmer.js'),
+  ch('3e', 't09', 'Mener un projet et valider une solution', 'tk_creation', '📋', 't09_projet_validation.js'),
 ];
 
 // Numérotation « Chapitre n » à l'intérieur de chaque niveau, matière par matière.

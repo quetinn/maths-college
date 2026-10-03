@@ -21,6 +21,16 @@ export const MANUELS = {
   svt4: { titre: 'SVT Cycle 4', edition: 'LeLivreScolaire, 2017', url: LLS + 'sciences-de-la-vie-et-de-la-terre-cycle4-2017' },
 };
 
+/** Programme de technologie : il donne des repères par classe, les chapitres les suivent. */
+export const PROGRAMME_TECHNO = { titre: 'Programme de technologie du cycle 4', edition: 'Bulletin officiel n° 9 du 29 février 2024', url: 'https://www.education.gouv.fr/sites/default/files/document/Annexe%20%E2%80%94%20Programme%20de%20technologie%20du%20cycle%204-368016.pdf' };
+const REPERES_TECHNO = {
+  t01: "L'évolution des objets et des systèmes techniques", t02: "Le choix d'un objet dans un contexte de développement durable",
+  t03: "L'évolution des objets (intelligence artificielle) ; usages et impacts sociétaux du numérique", t04: "Fonctions, solutions, constituants de la chaîne d'énergie",
+  t05: "Chaîne d'information ; structuration et traitement des données", t06: "La circulation de l'information dans un réseau informatique",
+  t07: 'Le dépannage et la réparation ; matériaux et procédés', t08: "La programmation d'une nouvelle fonctionnalité",
+  t09: 'La gestion de projet technique ; la performance des objets ; la validation des solutions',
+};
+
 /**
  * Chapitre du site → [manuel, chapitre(s) correspondant(s) du manuel].
  * `suivi: true` : le chapitre a été construit en suivant le plan du manuel.
@@ -48,6 +58,7 @@ export const CORRESPONDANCES = {
 
 /** Ligne « source » affichée en bas d'un chapitre (ou '' s'il n'y en a pas). */
 export function sourceChapitre(id) {
+  if (REPERES_TECHNO[id]) return `Repères de la classe de 3ᵉ suivis : « ${REPERES_TECHNO[id]} », <a href="${PROGRAMME_TECHNO.url}" target="_blank" rel="noopener">${PROGRAMME_TECHNO.titre}</a> (${PROGRAMME_TECHNO.edition}).`;
   const c = CORRESPONDANCES[id];
   if (!c) return '';
   const m = MANUELS[c[0]];
@@ -101,6 +112,17 @@ export const VALEURS = [
   ['Grossesse : fécondation dans la trompe, environ 38 semaines après la fécondation', 'Wikipédia, « Grossesse »', WIKI + 'Grossesse'],
   ['Sulfate de cuivre anhydre blanc, bleu une fois hydraté ; test de présence d\'eau', 'Wikipédia, « Sulfate de cuivre »', WIKI + 'Sulfate_de_cuivre'],
   ['Eaux minérales : résidu sec de 18 mg/L à 2 590 mg/L', 'Wikipédia, « Eau minérale naturelle »', WIKI + 'Eau_min%C3%A9rale_naturelle'],
+  ['Octet : 8 bits, 256 valeurs de 0 à 255 ; kilooctet 1 000 octets, mégaoctet 1 million, gigaoctet 1 milliard', 'Wikipédia, « Octet »', WIKI + 'Octet'],
+  ['Code ASCII : 128 caractères sur 7 bits ; A = 65, Z = 90, a = 97, 0 = 48, espace = 32 ; extensions à 8 bits (256 caractères) pour les lettres accentuées', 'Wikipédia, « American Standard Code for Information Interchange »', WIKI + 'American_Standard_Code_for_Information_Interchange'],
+  ['Adresse IPv4 : 32 bits, quatre nombres de 0 à 255 séparés par des points ; adresses privées 192.168.x.x non routées sur Internet ; IPv6 sur 128 bits', 'Wikipédia, « Adresse IP »', WIKI + 'Adresse_IP'],
+  ['Apprentissage automatique : supervisé (exemples étiquetés), non supervisé (recherche de structure), par renforcement (récompenses)', 'Wikipédia, « Apprentissage automatique »', WIKI + 'Apprentissage_automatique'],
+  ['Indice de réparabilité : note sur 10, affichée depuis le 1ᵉʳ janvier 2021 ; critères : documentation, démontabilité, disponibilité et prix des pièces détachées, critères propres au produit ; remplacé par l\'indice de durabilité pour les téléviseurs et les lave-linge en 2025', 'ministère de la Transition écologique', 'https://www.ecologie.gouv.fr/politiques-publiques/indice-reparabilite'],
+  ['Étiquette énergie : classes de A (le plus efficace) à G depuis le 1ᵉʳ mars 2021, sans A+, A++ ni A+++', 'Wikipédia, « Étiquette-énergie »', WIKI + '%C3%89tiquette-%C3%A9nergie'],
+  ['Développement durable : définition du rapport Brundtland (1987) ; trois piliers : environnemental, social, économique', 'Wikipédia, « Développement durable »', WIKI + 'D%C3%A9veloppement_durable'],
+  ['Effet photovoltaïque : découvert par Edmond Becquerel, présenté à l\'Académie des sciences en 1839', 'Wikipédia, « Effet photovoltaïque »', WIKI + 'Effet_photovolta%C3%AFque'],
+  ['Première cellule photovoltaïque au silicium de rendement notable : laboratoires Bell, 1954, soit plus d\'un siècle après la découverte', 'Wikipédia, « Cellule photovoltaïque »', WIKI + 'Cellule_photovolta%C3%AFque'],
+  ['Chargeur universel : connecteur USB-C imposé dans l\'Union européenne aux téléphones depuis fin 2024, pour réduire les déchets', 'Wikipédia, « Chargeur universel »', WIKI + 'Chargeur_universel'],
+  ['Lampes à incandescence : retirées de la vente dans l\'Union européenne entre 2009 et 2012, pour réduire la consommation d\'énergie', 'Wikipédia, « Lampe à incandescence classique »', WIKI + 'Lampe_%C3%A0_incandescence_classique'],
   ['Vitesse de la lumière dans le vide : 299 792 458 m/s, arrondie à 300 000 km/s', 'Wikipédia, « Vitesse de la lumière »', WIKI + 'Vitesse_de_la_lumi%C3%A8re'],
   ['Pesanteur terrestre : 9,81 N/kg en valeur normale, arrondie à 9,8 N/kg', 'Wikipédia, « Pesanteur »', WIKI + 'Pesanteur'],
   ['Air : 78 % de diazote, 21 % de dioxygène ; 1,2 g par litre à 20 °C ; pression atmosphérique normale de 1 013 hPa', 'Wikipédia, « Air »', WIKI + 'Air'],
@@ -152,18 +174,21 @@ export const SOURCES = [
     liens: [
       ['Programme d\'enseignement du cycle 4 (toutes disciplines)', 'ministère de l\'Éducation nationale, en vigueur depuis la rentrée 2020 (BO n° 31 du 30 juillet 2020)', 'https://eduscol.education.gouv.fr/sites/default/files/document/programme-d-enseignement-du-cycle-4-67722.pdf'],
       ['Programmes du collège', 'ministère de l\'Éducation nationale', 'https://www.education.gouv.fr/les-programmes-du-college-470408'],
+      [PROGRAMME_TECHNO.titre, PROGRAMME_TECHNO.edition + ' ; en vigueur en 3ᵉ depuis la rentrée 2026', PROGRAMME_TECHNO.url],
+      ['Sujet de référence de technologie n° 1 pour le brevet', 'éduscol, septembre 2026', 'https://eduscol.education.gouv.fr/sites/default/files/document/dnb-sujet-de-reference-technologie-serie-generale-n01-129676.pdf'],
       ['Programme de mathématiques de 5ᵉ (rentrée 2026)', 'Bulletin officiel n° 10 du 5 mars 2026', 'https://www.education.gouv.fr/bo/2026/Hebdo10/MENE2602912A'],
-      ['Diplôme national du brevet 2026 : épreuves et barèmes', 'ministère de l\'Éducation nationale', 'https://www.education.gouv.fr/diplome-national-du-brevet-2026-le-point-sur-les-nouveautes-470615'],
+      ['Les épreuves du diplôme national du brevet à compter de la session 2027 : durées, parties et barèmes', 'éduscol, d\'après la note de service du 11 septembre 2026', 'https://eduscol.education.gouv.fr/5607/les-epreuves-du-dnb'],
+      ['Liste indicative d\'automatismes pour l\'épreuve de mathématiques du brevet', 'éduscol, octobre 2025', 'https://eduscol.education.gouv.fr/sites/default/files/document/liste-indicative-dautomatismes-pour-le-dnbpdf-116340.pdf'],
     ],
   },
   {
     titre: 'Manuels de référence',
-    texte: ["Sommaires consultés pour le découpage en chapitres. Chaque chapitre de physique-chimie et de SVT indique, en bas de page, le chapitre du manuel auquel il correspond."],
+    texte: ["Sommaires consultés pour le découpage en chapitres. Chaque chapitre de physique-chimie et de SVT indique, en bas de page, le chapitre du manuel auquel il correspond. La technologie n'a pas de manuel en accès libre : ses chapitres suivent les repères par classe du programme officiel, cités en bas de page."],
     liens: Object.values(MANUELS).map((m) => [m.titre, m.edition, m.url]),
   },
   {
     titre: 'Valeurs réelles citées',
-    texte: ["Chaque valeur réelle citée dans un chapitre de physique-chimie ou de SVT a été relue sur la page indiquée. Les valeurs sont arrondies comme en classe (340 m/s pour le son, 300 000 km/s pour la lumière, 9,8 N/kg pour la pesanteur terrestre). Les rendements et les puissances des appareils donnés dans les exercices sont des ordres de grandeur choisis pour l'entraînement."],
+    texte: ["Chaque valeur réelle citée dans un chapitre de physique-chimie, de SVT ou de technologie a été relue sur la page indiquée. Les valeurs sont arrondies comme en classe (340 m/s pour le son, 300 000 km/s pour la lumière, 9,8 N/kg pour la pesanteur terrestre). Les rendements et les puissances des appareils donnés dans les exercices sont des ordres de grandeur choisis pour l'entraînement."],
     liens: VALEURS,
   },
   {

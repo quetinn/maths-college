@@ -803,6 +803,15 @@ html[data-mode="dark"] { --retenir: #2e2a1a; --retenir-tag: #e0b300; }
 .brevet-bilan-card { background: var(--accent-soft); border-radius: var(--radius); padding: 1.2rem; text-align: center; }
 .brevet-note { font-size: 1.4rem; margin: 0.4rem 0; }
 .brevet-note strong { color: var(--accent-ink); }
+.exam-timer.is-fini { background: var(--err); }
+.brevet-consignes { margin: 0 0 1rem 1.2rem; }
+.brevet-consignes li { margin-bottom: 0.25rem; }
+.brevet-detail { margin: 0.2rem 0 0.6rem; color: var(--muted); }
+.brevet-redaction { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); padding: 0.7rem 0.9rem; margin: 0.8rem auto; max-width: 34rem; text-align: left; }
+.brevet-redaction legend { font-weight: 700; padding: 0 0.3rem; }
+.brevet-redaction p { margin: 0 0 0.5rem; font-size: 0.95rem; }
+.brevet-redaction label { display: flex; align-items: center; gap: 0.5rem; min-height: 2rem; cursor: pointer; }
+.brevet-rendu { color: var(--muted); font-weight: 700; margin: 0 0 1rem; }
 .brevet-bilan-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.8rem; }
 
 /* --- Révision ciblée --- */
@@ -1629,3 +1638,97 @@ html[data-mode="dark"] .sv-ciel { fill: #24364f; }
 .pc-spectre rect.pc-d-actif { opacity: 1; stroke: var(--text); stroke-width: 2; }
 
 .sv-galaxie { fill: rgba(255,255,255,0.28); stroke: rgba(255,255,255,0.5); stroke-width: 0.8; }
+
+/* =====================================================================
+   Technologie : couleur de la matière, accueil, figures (js/chapters/techno/figures.js)
+   ===================================================================== */
+:root { --techno: #6b3fa0; }
+[data-matiere="techno"] { --accent: var(--techno); --accent-soft: #ece3f7; --accent-ink: #4f2b7d; }
+html[data-mode="dark"][data-matiere="techno"] { --accent: #b592f2; --accent-soft: #2e2145; --accent-ink: #dccbff; --affiche: #3f2466; }
+
+/* Accueil : deux roues dentées qui s'entraînent. */
+.illu-roue { fill: none; stroke: #fff; stroke-width: 3; stroke-linejoin: round; }
+.illu-roue-j { stroke: var(--jaune); }
+.illu-moyeu { fill: var(--jaune); }
+.illu-roue-a, .illu-roue-b { animation: roue 18s linear infinite; }
+.illu-roue-a { transform-origin: 80px 135px; }
+.illu-roue-b { transform-origin: 150.7px 64.3px; animation-duration: 12s; animation-direction: reverse; }
+@keyframes roue { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .illu-roue-a, .illu-roue-b { animation: none; } }
+
+/* Schéma-bloc (chaîne d'énergie, chaîne d'information). */
+.tk-bloc rect { fill: var(--surface); stroke: var(--text); stroke-width: 2; }
+.tk-bloc.tk-fort rect { fill: var(--accent-soft); stroke: var(--accent); }
+.tk-bloc text, .tk-flux text { font: 700 11px var(--texte); fill: var(--text); text-anchor: middle; }
+.tk-bloc .tk-role { font-weight: 500; font-size: 9.5px; fill: var(--muted); }
+.tk-flux path { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+.tk-flux polygon { fill: var(--accent); }
+.tk-flux text { font-weight: 500; font-size: 9.5px; fill: var(--accent-ink); }
+.tk-repere circle { fill: var(--accent); }
+.tk-repere text { font: 800 12px var(--texte); fill: #fff; text-anchor: middle; }
+.tk-fil { stroke: var(--text); stroke-width: 2; fill: none; }
+.tk-noeud rect, .tk-noeud circle { fill: var(--surface); stroke: var(--text); stroke-width: 2; }
+.tk-noeud.tk-fort rect, .tk-noeud.tk-fort circle { fill: var(--accent-soft); stroke: var(--accent); }
+.tk-noeud text { font: 700 10px var(--texte); fill: var(--text); text-anchor: middle; }
+.tk-noeud .tk-role { font-weight: 500; font-size: 9px; fill: var(--muted); }
+.tk-barre rect { fill: var(--accent); }
+.tk-barre text { font: 600 10px var(--texte); fill: var(--text); }
+.tk-grille line { stroke: var(--border); stroke-width: 1; }
+
+/* Brevet : question à rédiger, comparée à une réponse modèle. */
+.brevet-ouverte { width: 100%; min-height: 5.5rem; padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font: inherit; resize: vertical; }
+.brevet-modele { border-left: 4px solid var(--accent); padding: 0.2rem 0 0.2rem 0.7rem; }
+.brevet-modele > strong { color: var(--accent-ink); }
+.brevet-paires { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
+
+/* Technologie : figures ajoutées (frise, cycle de vie, étiquette énergie, apprentissage, dépannage, simulateurs). */
+.tk-zone { fill: none; stroke: var(--border); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.tk-fil-autre { stroke: var(--muted); stroke-dasharray: 4 4; stroke-width: 1.5; }
+.tk-paquet { fill: var(--jaune); stroke: var(--text); stroke-width: 1.5; offset-rotate: 0deg; animation: paquet 5s linear infinite; }
+@keyframes paquet { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+.tk-nom { font: 700 10.5px var(--texte); fill: var(--text); }
+.tk-nom-on { fill: var(--accent-ink); }
+.tk-rupture { stroke: var(--err); stroke-width: 2; stroke-dasharray: 4 3; fill: none; }
+.tk-rupture-txt { font: 800 10px var(--texte); fill: var(--err); }
+.tk-jalon { stroke: var(--text); stroke-width: 2; }
+.tk-jalon-0 { fill: var(--jaune); } .tk-jalon-1 { fill: var(--accent); } .tk-jalon-2 { fill: var(--ok); }
+.tk-anneau { fill: none; stroke: var(--accent); stroke-width: 3; stroke-dasharray: 2 7; stroke-linecap: round; }
+.tk-etape { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; transition: r 0.25s; }
+.tk-etape-on { fill: var(--accent); }
+.tk-etape-num { font: 800 10px var(--texte); fill: var(--accent-ink); }
+.tk-etape-on + .tk-etape-num { fill: #fff; }
+.tk-classe-0 { fill: #1a9641; } .tk-classe-1 { fill: #5cb85c; } .tk-classe-2 { fill: #b8d433; } .tk-classe-3 { fill: #f4d50f; }
+.tk-classe-4 { fill: #f7a823; } .tk-classe-5 { fill: #ed6a1f; } .tk-classe-6 { fill: #d7191c; }
+.tk-classe-txt { font: 900 12px var(--texte); fill: #fff; }
+.tk-classe-choix { fill: var(--text); }
+html[data-mode="dark"] .tk-classe-choix + .tk-classe-txt { fill: #111; }
+.tk-cout-achat { fill: var(--muted); } .tk-cout-energie { fill: var(--accent); }
+.tk-pt { stroke: var(--text); stroke-width: 1.5; }
+.tk-pt-0 { fill: var(--jaune); } .tk-pt-1 { fill: var(--accent); } .tk-pt-neutre { fill: var(--surface-2); }
+.tk-frontiere { stroke: var(--err); stroke-width: 2.5; stroke-dasharray: 6 4; fill: none; }
+.tk-groupe { fill: var(--accent-soft); fill-opacity: 0.5; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 5 4; }
+.tk-mur { fill: var(--text); }
+.tk-essai { fill: none; stroke-width: 2.5; stroke-dasharray: 5 4; stroke-linejoin: round; }
+.tk-essai-ko { stroke: var(--err); } .tk-essai-ok { stroke: var(--ok); }
+.tk-gain { font: 800 11px var(--texte); fill: var(--ok); }
+.tk-cible { fill: var(--jaune); stroke: var(--text); stroke-width: 1.5; }
+.tk-noeud.tk-panne rect { fill: var(--err-bg); stroke: var(--err); }
+.tk-sonde { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 3 3; fill: none; }
+.tk-mesure rect { stroke-width: 2; fill: var(--surface); }
+.tk-mesure text { font: 800 12px var(--texte); text-anchor: middle; fill: var(--text); }
+.tk-mesure-ok rect { stroke: var(--ok); fill: var(--ok-bg); } .tk-mesure-ko rect { stroke: var(--err); fill: var(--err-bg); }
+.tk-piece rect, .tk-piece path { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+.tk-trou { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+.tk-outil { fill: none; stroke: var(--text); stroke-width: 2.5; stroke-linecap: round; }
+.tk-outil-plein { fill: var(--text); }
+.tk-copeau { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+.tk-capteur { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+.tk-onde { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 3 4; fill: none; }
+.tk-led-on { fill: var(--err); stroke: var(--text); stroke-width: 1.5; }
+.tk-led-off { fill: var(--surface-2); stroke: var(--text); stroke-width: 1.5; }
+.tk-led-ok { fill: var(--ok); stroke: var(--text); stroke-width: 1.5; }
+.tk-tolerance { fill: var(--ok-bg); stroke: var(--ok); stroke-width: 1.5; }
+.tk-branches { display: grid; gap: 0.35rem; margin-top: 0.5rem; font-size: 0.9rem; }
+.tk-branches > div { border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 0.35rem 0.6rem; color: var(--muted); transition: border-color 0.2s, background 0.2s; }
+.tk-branches > .tk-branche-on { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
+@media (prefers-reduced-motion: reduce) { .tk-paquet { animation: none; offset-distance: 50%; } }

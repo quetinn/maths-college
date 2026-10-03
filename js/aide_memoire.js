@@ -145,4 +145,35 @@ export default [
       { titre: 'Phénotype', points: ["Phénotype = ensemble des caractères observables.", "Il dépend des gènes <strong>et</strong> de l'environnement (soleil, alimentation, sport…).", "Un caractère acquis au cours de la vie n'est pas héréditaire."] },
     ],
   },
+  // ---------------------------------------------------------------------- Technologie
+  {
+    theme: 'tk_usages', matiere: 'techno', titre: 'Les objets, leurs usages et la société', icone: '🌐',
+    fiches: [
+      { titre: 'Innovation', points: ['Invention : création nouvelle. Innovation : nouveauté adoptée par les utilisateurs.', 'Rupture : nouveau principe technique. Amélioration : même principe, objet perfectionné.', 'Famille : même besoin. Lignée : même principe technique.', 'Contrainte sociétale : loi, norme, sécurité, environnement.'] },
+      { titre: 'Argumentaire court', points: ['Affirmer, justifier par un fait, nuancer, conclure.', 'Citer un avantage et un inconvénient.'] },
+      { titre: 'Choisir un objet', points: ['Cycle de vie : extraction, traitement, fabrication, assemblage, utilisation, fin de vie ; du transport entre chaque étape.', 'Trois piliers du développement durable : environnemental, social, économique.', 'Étiquette énergie : de A (le plus efficace) à G. Indice de réparabilité : note sur 10.', "Coût total = prix d'achat + coût de l'énergie sur la durée d'utilisation.", 'Bilan carbone : émissions de tout le cycle de vie, en kg équivalent CO₂.'] },
+      { titre: 'Intelligence artificielle', points: ['Supervisé : exemples étiquetés. Non supervisé : recherche de groupes. Par renforcement : récompenses.', 'Biais : erreur due à des données d\'entraînement déséquilibrées.', 'Une réponse se vérifie ; la décision revient à une personne.'] },
+      { titre: 'Usage raisonné du numérique', points: ['Donnée personnelle : identité, position, navigation.', 'Mot de passe long et différent pour chaque service.', "Propriété intellectuelle : pas de réutilisation d'une œuvre sans autorisation."] },
+    ],
+  },
+  {
+    theme: 'tk_structure', matiere: 'techno', titre: 'Structure et fonctionnement', icone: '⚙️',
+    fiches: [
+      { titre: "Chaîne d'énergie", points: ['Alimenter (batterie) → distribuer (relais) → convertir (moteur) → transmettre (engrenages).', 'Moteur : électrique → mécanique. Lampe : électrique → lumineuse. Radiateur : électrique → thermique. Génératrice : mécanique → électrique.', 'Schéma-bloc : un bloc par fonction, une forme d\'énergie par flèche.'] },
+      { titre: 'Engrenages', formules: ['N_1 \\times Z_1 = N_2 \\times Z_2'], points: ['$N$ : vitesse en tr/min ; $Z$ : nombre de dents.', 'Plus de dents : moins vite. Deux roues engrenées tournent en sens inverses.'] },
+      { titre: "Chaîne d'information", points: ['Acquérir (capteur) → traiter (microcontrôleur) → communiquer (afficheur).', 'Le traitement envoie des ordres à la chaîne d\'énergie.'] },
+      { titre: 'Bit, octet, code ASCII', points: ['Bit : 0 ou 1. Avec $n$ bits : $2^n$ valeurs.', 'Octet : 8 bits, 256 valeurs (0 à 255). Poids : 128, 64, 32, 16, 8, 4, 2, 1.', 'Code ASCII : A = 65, B = 66… ; a = 97. Un caractère : un octet.', 'Types de données : nombre, mot (chaîne de caractères), booléen.'] },
+      { titre: 'Réseau et Internet', points: ['Commutateur : relie les terminaux d\'un réseau local. Routeur : relie des réseaux.', 'Adresse IP : quatre nombres de 0 à 255.', 'Un message est découpé en paquets ; chaque routeur lit sa table de routage.', 'Durée de transfert = taille en bits ÷ débit ; 1 octet = 8 bits.'] },
+      { titre: 'Dépanner et réparer', points: ['Décrire la panne, lister les hypothèses, tester une à une du plus simple au plus complexe, réparer, valider.', 'Couper l\'alimentation avant d\'intervenir.', 'Ajout de matière (impression 3D), enlèvement (découpe laser, usinage), mise en forme (pliage, thermoformage).', 'Assemblage démontable (vis, clip) : réparation facile.'] },
+      { titre: 'Programmer', points: ['Entrées (capteurs, boutons) → traitement → sorties (actionneurs, affichages).', 'ET : les deux conditions vraies. OU : au moins une. NON : inverse.', 'Blocs → texte : si… sinon = <code>if… else</code> ; répéter indéfiniment = <code>while True</code>.', 'Tester avec une valeur de chaque côté du seuil.'] },
+    ],
+  },
+  {
+    theme: 'tk_creation', matiere: 'techno', titre: 'Projet et validation', icone: '🛠️',
+    fiches: [
+      { titre: 'Mener un projet', points: ['Besoin → cahier des charges → recherche de solutions → modélisation → prototype → tests.', 'Diagramme de planification : une barre par tâche ; certaines tâches se font en même temps.', 'Revue de projet : faire le point et décider de la suite.'] },
+      { titre: 'Protocole de test', points: ['Grandeur mesurée, instrument, conditions, étapes, nombre de mesures.', 'On répète la mesure et on calcule la moyenne.'] },
+      { titre: 'Écart', formules: ['\\dfrac{\\text{valeur mesurée} - \\text{valeur attendue}}{\\text{valeur attendue}} \\times 100'], points: ['Solution validée si l\'écart reste dans la limite du cahier des charges.'] },
+    ],
+  },
 ];

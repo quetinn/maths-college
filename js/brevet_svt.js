@@ -1,6 +1,6 @@
 // =====================================================================
 //  brevet_svt.js — Problèmes type Brevet, partie SVT de l'épreuve de
-//  sciences (25 points, 30 minutes au DNB).
+//  sciences (10 points, 30 minutes au DNB depuis 2027).
 //
 //  Même schéma que brevet_sciences.js : une situation, un document, des
 //  questions qui s'enchaînent (à choix, ou à réponse numérique).

@@ -223,7 +223,7 @@ for (const meta of CHAPTERS.filter((c) => c.module && (!filtre.length || filtre.
 // ------------------------------------------------ Problèmes de brevet (maths et sciences)
 let nbProblemes = 0;
 if (!filtre.length) {
-  for (const fichier of ['js/brevet.js', 'js/brevet_sciences.js', 'js/brevet_svt.js']) {
+  for (const fichier of ['js/brevet.js', 'js/brevet_sciences.js', 'js/brevet_svt.js', 'js/brevet_techno.js']) {
     const { PROBLEMES, genererProbleme } = await imp(fichier);
     for (const pb of PROBLEMES) {
       nbProblemes++;
@@ -236,7 +236,9 @@ if (!filtre.length) {
         if (typeof inst.figure === 'function' && k < 5) executerVisuel(pb.id, inst.figure);
         inst.questions.forEach((q, i) => {
           const ou = `${pb.id}/q${i + 1}`;
-          if (suspect([q.enonce, q.corrige, q.indice, texte(q.choix)].map(texte).join(' '))) problemes.push(`${ou} : texte suspect`);
+          if (suspect([q.enonce, q.corrige, q.indice, q.modele, texte(q.choix)].map(texte).join(' '))) problemes.push(`${ou} : texte suspect`);
+          // Question à rédiger : pas de réponse à vérifier, mais une réponse modèle obligatoire.
+          if (q.ouverte) { if (!q.modele) problemes.push(`${ou} : question ouverte sans réponse modèle`); return; }
           if (!q.corrige) problemes.push(`${ou} : pas de corrigé`);
           if (q.choix) {
             if (new Set(q.choix).size !== q.choix.length) problemes.push(`${ou} : choix en double`);
@@ -254,6 +256,30 @@ if (!filtre.length) {
     }
   }
   console.log(`${nbProblemes} problèmes de brevet vérifiés`);
+
+  // Automatismes (partie 1 du brevet de maths) : chaque générateur accepte sa réponse.
+  const { AUTOMATISMES, genererAutomatismes } = await imp('js/automatismes.js');
+  const generateurs = Object.values(AUTOMATISMES).flat();
+  for (const g of generateurs) {
+    for (let k = 0; k < TIRAGES; k++) {
+      let q;
+      try { q = g(); nbTirages++; } catch (e) { problemes.push(`automatisme ${g.name} : générateur en échec (${e.message})`); break; }
+      const ou = `automatisme ${g.name}`, avant = problemes.length;
+      if (suspect([q.enonce, q.corrige, texte(q.choix)].join(' '))) problemes.push(`${ou} : texte suspect`);
+      if (!q.corrige) problemes.push(`${ou} : pas de corrigé`);
+      if (q.choix) {
+        if (new Set(q.choix).size !== q.choix.length) problemes.push(`${ou} : choix en double`);
+        if (!(q.correct >= 0 && q.correct < q.choix.length)) problemes.push(`${ou} : index correct hors borne`);
+      } else {
+        const saisie = q.saisie ?? saisieDe(q);
+        if (!checkAnswer(saisie, q)) problemes.push(`${ou} : refuse sa propre réponse (${saisie})`);
+      }
+      if (problemes.length > avant) break;
+    }
+  }
+  const sujet = genererAutomatismes();
+  if (sujet.questions.length !== 9) problemes.push(`automatismes : ${sujet.questions.length} questions au lieu de 9`);
+  console.log(`${generateurs.length} automatismes vérifiés`);
 }
 
 // Les avertissements identiques (même exercice) ne sont listés qu'une fois.
